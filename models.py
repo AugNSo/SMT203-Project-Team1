@@ -1,23 +1,45 @@
 from app import db
 
+
 class Course(db.Model):
     __tablename__ = "course"
     id = db.Column(db.String(20), primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    professor = db.Column(db.String(80), primary_key=True)
-    school = db.Column(db.String(10), nullable=False)
+    prof_course = db.relationship(
+        'Prof_Course', back_populates='course', cascade='all', lazy=True, uselist=True)
 
-    def __init__(self,id,name,professor,school):
+    def __init__(self, id, name, professor, school):
         self.id = id
         self.name = name
-        self.professor = professor
-        self.school = school
+
+
+class Professor(db.Model):
+    __tablename__ = "professor"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    prof_course = db.relationship(
+        'Prof_Course', back_populates='professor', cascade='all', lazy=True, uselist=True)
+
+    def __init__(self, name):
+        self.name = name
+
+
+class Prof_Course(db.Model):
+    __tablename__ = "prof_course"
+    cid = db.Column(db.String(20), db.ForeignKey(
+        'course.id'), primary_key=True)
+    pid = db.Column(db.Integer, db.ForeignKey(
+        'professor.id'), primary_key=True)
+    professor = db.relationship('Professor', back_populates='prof_course')
+    course = db.relationship('Course', back_populates='prof_course')
+    review = db.relationship(
+        'Review', back_populates='prof_course', cascade='all', lazy=True, uselist=True)
 
 
 class Review(db.Model):
     __tablename__ = "review"
     reviewer = db.Column(db.String(80), primary_key=True)
-    professor = db.Column(db.String(80), primary_key=True)
+    professor = db.Column(db.Integer, primary_key=True)
     course = db.Column(db.String(80), primary_key=True)
     score1 = db.Column(db.Float, nullable=False)
     score2 = db.Column(db.Float, nullable=False)
@@ -25,9 +47,10 @@ class Review(db.Model):
     year = db.Column(db.Integer)
     school = db.Column(db.String(10))
     comment = db.Column(db.String(300))
+    advice = db.Column(db.String(300))
     constraint = db.ForeignKeyConstraint(
-        ('professor', 'course'), ('professor_course.professor_id', 'professor_course.course_id'))
-    courses = db.relationship('Course',back_populates='review',cascade='all',lazy=True,uselist=True)
+        ('professor', 'course'), ('professor_course.pid', 'professor_course.cid'))
+    prof_course = db.relationship('Prof_Course', back_populates='review')
 
     def __init__(self, reviewer, professor, course, score1, score2, score3, year=None, school=None, comment=None):
         self.reviewer = reviewer
