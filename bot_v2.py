@@ -64,12 +64,12 @@ def step_2_vaildation(response2):
 
 
 def step_3(response2):  ## vaildate the input and start calling API
-    prof_list = []
-    ## call our Course API and retrieve corresponding prof and append into prof_list
-    if prof_list == []:
+    l = []
+    ## call our Course API and retrieve corresponding prof and append into list l
+    if l == []:
         msg = "Pls check your input"
         return vaildation_reply(msg)
-    return prof_list
+    return l
 
 
 response3 = "1"      ## 如果是给一个list的名字    # assume we don't have button for this
