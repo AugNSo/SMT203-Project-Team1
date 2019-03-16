@@ -3,20 +3,23 @@ from app import db
 
 class Course(db.Model):
     __tablename__ = "course"
-    id = db.Column(db.String(20), primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
+    # since course code changes,
+    id = db.Column(db.Integer, primary_key=True)
+    cid = db.Column(db.String(20), nullable=False, unique=False)
+    name = db.Column(db.String(80), nullable=False, unique=True)
+    school = db.Column(db.String(10), nullable=False)
     prof_course = db.relationship(
         'Prof_Course', back_populates='course', cascade='all', lazy=True, uselist=True)
 
-    def __init__(self, id, name, professor, school):
-        self.id = id
+    def __init__(self, cid, name):
+        self.cid = cid
         self.name = name
 
 
 class Professor(db.Model):
     __tablename__ = "professor"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
+    name = db.Column(db.String(80), unique=True, nullable=False)
     prof_course = db.relationship(
         'Prof_Course', back_populates='professor', cascade='all', lazy=True, uselist=True)
 
@@ -26,10 +29,19 @@ class Professor(db.Model):
 
 class Prof_Course(db.Model):
     __tablename__ = "prof_course"
-    cid = db.Column(db.String(20), db.ForeignKey(
-        'course.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    """
+    cname = db.Column(db.String(80), db.ForeignKey(
+        'course.name'))
+    pname = db.Column(db.String(80), db.ForeignKey(
+        'professor.name'))
+    """
+    #################################
+    cid = db.Column(db.Integer, db.ForeignKey(
+        'course.id'))
     pid = db.Column(db.Integer, db.ForeignKey(
-        'professor.id'), primary_key=True)
+        'professor.id'))
+    
     professor = db.relationship('Professor', back_populates='prof_course')
     course = db.relationship('Course', back_populates='prof_course')
     review = db.relationship(
@@ -39,17 +51,17 @@ class Prof_Course(db.Model):
 class Review(db.Model):
     __tablename__ = "review"
     reviewer = db.Column(db.String(80), primary_key=True)
-    professor = db.Column(db.Integer, primary_key=True)
+    professor = db.Column(db.String(80), primary_key=True)
     course = db.Column(db.String(80), primary_key=True)
     score1 = db.Column(db.Float, nullable=False)
     score2 = db.Column(db.Float, nullable=False)
     score3 = db.Column(db.Float, nullable=False)
-    year = db.Column(db.Integer)
-    school = db.Column(db.String(10))
+    year = db.Column(db.Integer)  # user
+    school = db.Column(db.String(10))  # user
     comment = db.Column(db.String(300))
     advice = db.Column(db.String(300))
     constraint = db.ForeignKeyConstraint(
-        ('professor', 'course'), ('professor_course.pid', 'professor_course.cid'))
+        ('professor', 'course'), ('professor_course.pname', 'professor_course.cname'))
     prof_course = db.relationship('Prof_Course', back_populates='review')
 
     def __init__(self, reviewer, professor, course, score1, score2, score3, year=None, school=None, comment=None):
