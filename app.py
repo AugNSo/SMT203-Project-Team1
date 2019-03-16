@@ -27,9 +27,15 @@ def create_course():
 
 @app.route('/postprofcourse',methods=["POST"])
 def create_profcouse():
+    cid = request.json['cid']
+    pid = request.json['pid']
+    """
     cname = request.json['cname']
     pname = request.json['pname']
+    
     new_profcourse = Prof_Course(cname=cname, pname=pname)
+    """
+    new_profcourse = Prof_Course(cid=cid, cid=cid)
     db.session.add(new_profcourse)
     db.session.commit()
 

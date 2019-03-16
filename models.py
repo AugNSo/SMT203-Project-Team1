@@ -30,10 +30,18 @@ class Professor(db.Model):
 class Prof_Course(db.Model):
     __tablename__ = "prof_course"
     id = db.Column(db.Integer, primary_key=True)
+    """
     cname = db.Column(db.String(80), db.ForeignKey(
         'course.name'))
     pname = db.Column(db.String(80), db.ForeignKey(
         'professor.name'))
+    """
+    #################################
+    cid = db.Column(db.Integer, db.ForeignKey(
+        'course.id'))
+    pid = db.Column(db.Integer, db.ForeignKey(
+        'professor.id'))
+    
     professor = db.relationship('Professor', back_populates='prof_course')
     course = db.relationship('Course', back_populates='prof_course')
     review = db.relationship(
