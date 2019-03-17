@@ -8,57 +8,47 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://smt203t1:smt203t1@localhos
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-from models import Professor,Course,Prof_Course,Review
+from models import Professor, Course, Prof_Course, Review
 
-@app.route('/postprofessor',methods=["POST"])
+@app.route('/postprofessor', methods=["POST"])
 def create_prof():
     name = request.json['name']
-    prof_course = request.json['prof_course']
     new_prof = Professor(name=name)
     db.session.add(new_prof)
     db.session.commit()
+    return jsonify('{} was created'.format(new_prof))
 
-@app.route('/postcourse',methods=["POST"])
+
+@app.route('/postcourse', methods=["POST"])
 def create_course():
     cid = request.json['cid']
     name = request.json['name']
     school = request.json['school']
-    prof_course = request.json['prof_course']
-    new_course = Course(cid=cid,name=name,school=school)
+    new_course = Course(cid=cid, name=name, school=school)
     db.session.add(new_course)
     db.session.commit()
-    for p in prof_course:
-        curr_prof = Professor.query.filter_by(name=p).first()
-        if curr_prof is None:
-            new_prof = Professor(name=p,prof_course=[new_course])
-            db.session.add(new_prof)
-        else:
-            curr_prof.prof_course.append(new_course)
-    db.session.commit()
-    for p in prof_course:
-        new_prof_course = Prof_Course(cname=name,pname=p)
-        db.session.add(new_prof_course)
-        db.session.commit()
+    return jsonify('{} was created'.format(new_course))
 
-@app.route('/postprofcourse',methods=["POST"])
+
+@app.route('/postprofcourse', methods=["POST"])
 def create_profcouse():
-    cid = request.json['cid']
-    pid = request.json['pid']
-    """
+    #cid = request.json['cid']
+    #pid = request.json['pid']
     cname = request.json['cname']
     pname = request.json['pname']
-    
+
     new_profcourse = Prof_Course(cname=cname, pname=pname)
-    """
-    new_profcourse = Prof_Course(cid=cid, pid=pid)
+    #new_profcourse = Prof_Course(cid=cid, pid=pid)
     db.session.add(new_profcourse)
     db.session.commit()
+    return jsonify('{} was created'.format(new_profcourse))
+
 
 @app.route('/postreview', methods=["POST"])
 def create_postreview():
     reviewer = request.json['reviewer']
-    professor = request.json['pid']
-    course = request.json['cid']
+    pname = request.json['pname']
+    cname = request.json['cname']
     score1 = request.json['score1']
     score2 = request.json['score2']
     score3 = request.json['score3']
@@ -78,10 +68,11 @@ def create_postreview():
         advice = request.json['advice']
     except:
         advice = None
-    new_review = Review(reviewer=reviewer, pid=pid, cid=cid, score1=score1, score2=score2, score3=score3, year=year, school=school, comment=comment, advice=advice)
+    new_review = Review(reviewer=reviewer, pname=pname, cname=cname, score1=score1,
+                        score2=score2, score3=score3, year=year, school=school, comment=comment, advice=advice)
     db.session.add(new_review)
     db.session.commit()
-
+    return jsonify('{} was created'.format(new_review))
 
 
 # your code ends here
