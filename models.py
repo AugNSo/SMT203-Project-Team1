@@ -19,10 +19,9 @@ class Course(db.Model):
     def serialize(self):
         return{
             'id' : self.id,
-            'cid' : self.cid,
+            'course id' : self.cid,
             'name' : self.name,
             'school' : self.school,
-            'prof_course' : self.prof_course,
         }
 
 
@@ -42,7 +41,6 @@ class Professor(db.Model):
         return{
             'id' : self.id,
             'name' : self.name,
-            'prof_course' : self.prof_course,
         }
 
 
@@ -65,9 +63,8 @@ class Prof_Course(db.Model):
 
     def serialize(self):
         return{
-            'cname' : self.cname,
-            'pname' : self.pname,
-            'review' : self.review,
+            'course' : self.cname,
+            'professor' : self.pname,
         }
 
 
@@ -102,8 +99,8 @@ class Review(db.Model):
     def serialize(self):
         return{
             'reviewer' : self.reviewer,
-            'pname' : self.pname,
-            'cname' : self.cname,
+            'professor' : self.pname,
+            'course' : self.cname,
             'score1' : self.score1,
             'score2' : self.score2,
             'score3' : self.score3,

@@ -32,13 +32,9 @@ def create_course():
 
 @app.route('/postprofcourse', methods=["POST"])
 def create_profcouse():
-    #cid = request.json['cid']
-    #pid = request.json['pid']
     cname = request.json['cname']
     pname = request.json['pname']
-
     new_profcourse = Prof_Course(cname=cname, pname=pname)
-    #new_profcourse = Prof_Course(cid=cid, pid=pid)
     db.session.add(new_profcourse)
     db.session.commit()
     return jsonify('{} was created'.format(new_profcourse))
@@ -79,44 +75,64 @@ def create_postreview():
 @app.route('/getreview', methods=["GET"])
 def get_review():
     if 'cid' in request.args:                       #if user enter courseID
-        cid = str(request.args.get('cid'))
-        cname = Prof_Course.query.filter_by(cid=cid).first()
-        review = Review.query.filter_by(cname=cname).first()
-        return jsonify(review.serialze())
-    elif 'cname' in request.args:                   #if user enter course name
-        cname = str(request.args.get('cname'))
-        review = Review.query.filter_by(cname=cname).first()
-        return jsonify(review.serialze())
+        cid = request.args.get('course_id')
+        cname = Course.query.filter_by(cid=cid).first()
+    else:                                           #if user enter course name
+        cname = request.args.get('course_name')
     if 'offset' in request.args:                    #if user specifiy how many records to show
         offset = int(request.args.get('offset'))
-    for i in range (0, offset, 1):{
-    }
+        review = Review.query.filter_by(cname=cname).limit(offset)
     else:
-        return None ##nothing found
+        review = Review.query.filter_by(cname=cname)
+        return jsonify([r.serialze() for r in review])
 
         
 
 @app.route('/getmodreview', methods=["GET"])
-def get_modreview():
-    if 'pname' in request.args:                     #if enter prof name
-        pname = str(request.args.get('pname'))
+def get_modreview():                
+    pname = request.args.get('prof_name')
     if 'cname' in request.args:
-        cname = str(request.args.get('cname'))      #if enter course name
-        review = Review.query.filter_by(cname=cname, pname=pname).first()
-        return jsonify(review.serialze())
-    elif 'cid' in request.args:                              #if enter courseID
-        cid = str(request.args.get('cid'))
-        cname = Prof_Course.query.filter_by(cid=cid, pname=pname).first()
-        return jsonify(review.serialze())
+        cname = request.args.get('course_name')           #enter course name
+        review = Review.query.filter_by(cname=cname, pname=pname)
+        return jsonify([r.serialze() for r in review])
+    else:                                           #enter courseID
+        cid = request.args.get('course_id')
+        cname = Course.query.filter_by(cid=cid).first()
+        review = Review.query.filter_by(cname=cname, pname=pname)
+        return jsonify([r.serialze() for r in review])
 
 @app.route('/getfilterscore', methods=["GET"])
 def get_filterscore():
-
+    course_id = request.args.get('course_id')
+    course_name = request.args.get('course_name')
+    if 'desc' in request.args and request.args.get('desc') == False:
+        try:
+            avgScore1 = request.args.get('avgScore1')
+        except:
+            avgScore1 = 5
+        try:
+            avgScore2 = request.args.get('avgScore2')
+        except:
+            avgScore2 = 5
+        try:
+            avgScore3 = request.args.get('avgScore3')
+        except: 
+            avgScore3 = 5
+        try:
+            avgTotal = request.args.get('avgTotal')
+        except:
+            avgTotal = 5
 
 @app.route('/getall', methods=["GET"])
 def get_all():
-    if True:
-        return json(review.serialze())
+    school = request.args.get('sch')
+    if 'offset' in request.args:                    #if user specifiy how many records to show
+        offset = int(request.args.get('offset'))
+        course = Course.query.filter_by(school=school).limit(offset)
+        return json([c.serialze() for c in course)
+    else:
+        course = Course.query.filter_by(school=school)
+        return json([c.serialze() for c in course)
 
 # your code ends here
 if __name__ == '__main__':
