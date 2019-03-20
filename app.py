@@ -74,6 +74,49 @@ def create_postreview():
     db.session.commit()
     return jsonify('{} was created'.format(new_review))
 
+#######################GET Method######################################
+
+@app.route('/getreview', methods=["GET"])
+def get_review():
+    if 'cid' in request.args:                       #if user enter courseID
+        cid = str(request.args.get('cid'))
+        cname = Prof_Course.query.filter_by(cid=cid).first()
+        review = Review.query.filter_by(cname=cname).first()
+        return jsonify(review.serialze())
+    elif 'cname' in request.args:                   #if user enter course name
+        cname = str(request.args.get('cname'))
+        review = Review.query.filter_by(cname=cname).first()
+        return jsonify(review.serialze())
+    if 'offset' in request.args:                    #if user specifiy how many records to show
+        offset = int(request.args.get('offset'))
+    for i in range (0, offset, 1):{
+    }
+    else:
+        return None ##nothing found
+
+        
+
+@app.route('/getmodreview', methods=["GET"])
+def get_modreview():
+    if 'pname' in request.args:                     #if enter prof name
+        pname = str(request.args.get('pname'))
+    if 'cname' in request.args:
+        cname = str(request.args.get('cname'))      #if enter course name
+        review = Review.query.filter_by(cname=cname, pname=pname).first()
+        return jsonify(review.serialze())
+    elif 'cid' in request.args:                              #if enter courseID
+        cid = str(request.args.get('cid'))
+        cname = Prof_Course.query.filter_by(cid=cid, pname=pname).first()
+        return jsonify(review.serialze())
+
+@app.route('/getfilterscore', methods=["GET"])
+def get_filterscore():
+
+
+@app.route('/getall', methods=["GET"])
+def get_all():
+    if True:
+        return json(review.serialze())
 
 # your code ends here
 if __name__ == '__main__':
