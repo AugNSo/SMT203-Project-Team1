@@ -18,12 +18,12 @@ url_sendSticker = '{}sendSticker'.format(url_base)
 
 ########################################################
 chat_id = "386055474" ## this need to extract from database
-# text = """Pls enter 1.Professor's name OR 2.Course code OR 3.Course name.
-#         Choose ONE of them with the index infront. 
-#         (i.e 1.Tan Hwee Xian OR 2.SMT203 OR 3.SCSM)"""
+text = """Pls enter 1.Professor's name OR 2.Course code OR 3.Course name.
+        Choose ONE of them with the index infront. 
+        (i.e 1.Tan Hwee Xian OR 2.SMT203 OR 3.SCSM)"""
 def validation_reply(msg):
     params = {"chat_id": chat_id, "text" : msg}
-    r = requests.post(url_sendMsg,params) 
+    r = requests.post(url_sendMsg, params) 
     return r.json()
 
 # response1 = "cid"
