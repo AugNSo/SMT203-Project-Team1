@@ -1,6 +1,5 @@
 from app import db
 
-
 class Course(db.Model):
     __tablename__ = "course"
     id = db.Column(db.Integer, primary_key=True)
@@ -16,6 +15,15 @@ class Course(db.Model):
         self.school = school
         prof_course = [] if prof_course is None else prof_course
         self.prof_course = prof_course
+    
+    def serialize(self):
+        return{
+            'id' : self.id,
+            'cid' : self.cid,
+            'name' : self.name,
+            'school' : self.school,
+            'prof_course' : self.prof_course,
+        }
 
 
 class Professor(db.Model):
@@ -29,6 +37,13 @@ class Professor(db.Model):
         self.name = name
         prof_course = [] if prof_course is None else prof_course
         self.prof_course = prof_course
+
+    def serialize(self):
+        return{
+            'id' : self.id,
+            'name' : self.name,
+            'prof_course' : self.prof_course,
+        }
 
 
 class Prof_Course(db.Model):
@@ -47,6 +62,13 @@ class Prof_Course(db.Model):
         self.pname = pname
         review = [] if review is None else review
         self.review = review
+
+    def serialize(self):
+        return{
+            'cname' : self.cname,
+            'pname' : self.pname,
+            'review' : self.review,
+        }
 
 
 class Review(db.Model):
@@ -76,3 +98,17 @@ class Review(db.Model):
         self.year = year
         self.comment = comment
         self.advice = advice
+
+    def serialize(self):
+        return{
+            'reviewer' : self.reviewer,
+            'pname' : self.pname,
+            'cname' : self.cname,
+            'score1' : self.score1,
+            'score2' : self.score2,
+            'score3' : self.score3,
+            'year' : self.year,
+            'school': self.school,
+            'comment' : self.comment,
+            'advice' : self.advice,
+        }
