@@ -74,10 +74,22 @@ def create_postreview():
 
 @app.route("/getcourse",methods=["GET"])
 def get_course():
-    cid = request.json["cid"]
-    for row in Course.query.filter_by(cid=cid):
+    if 'cid' in request.json:
+        cid = request.json["cid"]
+        row = Course.query.filter_by(cid=cid).first()
         cname = row.name
-    return cname
+        return cname
+    elif 'cname' in request.json:
+        cname = request.json['cname']
+        row = Course.query.filter_by(cname=cname).first()
+        cname = row.name
+        return cname
+
+@app.route("/getprofessor",methods=['Get'])
+def get_professor():
+    name = request.json['name']
+    professor = Professor.query.filter(Professor.name.like('%'+name+'%')).all()
+    return jsonify([p.serialize() for p in professor])
         
 @app.route("/getreview", methods=["GET"])
 def get_review():
