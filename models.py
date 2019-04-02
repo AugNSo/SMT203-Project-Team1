@@ -50,8 +50,7 @@ class Prof_Course(db.Model):
     pname = db.Column(db.String(80), db.ForeignKey('professor.name'))
     professor = db.relationship('Professor', back_populates='prof_course')
     course = db.relationship('Course', back_populates='prof_course')
-    review = db.relationship(
-        'Review', back_populates='prof_course', cascade='all', lazy=True, uselist=True)
+    review = db.relationship('Review', back_populates='prof_course', cascade='all', lazy=True, uselist=True)
     __table_args__ = (db.PrimaryKeyConstraint(
         'cname', 'pname', name='prof_course_pk'), {})
 
@@ -80,8 +79,7 @@ class Review(db.Model):
     school = db.Column(db.String(10), nullable=True)
     comment = db.Column(db.String(300), nullable=True)
     advice = db.Column(db.String(300), nullable=True)
-    __table_args__ = (db.ForeignKeyConstraint(['pname', 'cname'], [
-                      'prof_course.pname', 'prof_course.cname']),)
+    __table_args__ = (db.ForeignKeyConstraint(['pname', 'cname'], ['prof_course.pname', 'prof_course.cname']),)
     prof_course = db.relationship('Prof_Course', back_populates='review')
 
     def __init__(self, reviewer, pname, cname, score1, score2, score3, year=None, school=None, comment=None, advice=None):

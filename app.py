@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+import os
 # your code starts here
 app = Flask(__name__)
 app.debug = True
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://smt203t1:smt203t1@localhost:5432/smt203project"
+#app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://smt203t1:smt203t1@localhost:5432/smt203project"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -74,36 +76,33 @@ def create_postreview():
 
 @app.route("/getcourse",methods=["GET"])
 def get_course():
-    if 'cid' in request.json:
-        cid = request.json["cid"]
-        row = Course.query.filter_by(cid=cid).first()
-        cname = row.name
-        return cname
-    elif 'cname' in request.json:
-        cname = request.json['cname']
-        row = Course.query.filter_by(cname=cname).first()
-        cname = row.name
-        return cname
+    if 'cid' in request.args:
+        cid = request.args.get("cid")
+        course = Course.query.filter_by(cid=cid).all()
+        return jsonify([c.serialize() for c in course])
+    elif 'cname' in request.args:
+        cname = request.args.get("cname")
+        course = Course.query.filter_by(name=cname).all()
+        return jsonify([c.serialize() for c in course])
 
 @app.route("/getprofessor",methods=['Get'])
 def get_professor():
-    name = request.json['name']
+    name = request.args.get("name")
     professor = Professor.query.filter(Professor.name.like('%'+name+'%')).all()
     return jsonify([p.serialize() for p in professor])
         
 @app.route("/getreview", methods=["GET"])
 def get_review():
-    if "cid" in request.json:  # if user enter courseID
-        cid = request.json["cid"]
-        for row in Course.query.filter_by(cid=cid):
-            cname = row.name
+    if "cid" in request.args:  # if user enter courseID
+        cid = request.args.get("cid")
+        course = Course.query.filter_by(cid=cid).first()
+        cname = course.name
     else:  # if user enter course name
-        cname = request.json["cname"]
-    if "offset" in request.json:  # if user specifiy how many records to show
-        offset = request.json["offset"]
+        cname = request.args.get("cname")
+    if "offset" in request.args:  # if user specifiy how many records to show
+        offset = request.args.get("offset")
         review = Review.query.filter_by(cname=cname).limit(offset)
         return jsonify([r.serialize() for r in review])
-
     else:
         review = Review.query.filter_by(cname=cname).limit(15)
         return jsonify([r.serialize() for r in review])
@@ -111,80 +110,83 @@ def get_review():
 
 @app.route("/getmodreview", methods=["GET"])
 def get_modreview():
-    pname = request.json["pname"]
-    if "cname" in request.json:
-        cname = request.json["course_name"]  # enter course name
+    pname = request.args.get("pname")
+    if "cname" in request.args:
+        cname = request.args.get("course_name")  # enter course name
         review = Review.query.filter_by(cname=cname, pname=pname)
         return jsonify([r.serialize() for r in review])
-    else:  # enter courseID
-        cid = request.json["cid"]
-        for row in Course.query.filter_by(cid=cid):
-            cname = row.name
+    elif "cid" in request.args:  # enter courseID
+        cid = request.args.get("cid")
+        course = Course.query.filter_by(cid=cid).first()
+        cname = course.name
         review = Review.query.filter_by(cname=cname, pname=pname)
+        return jsonify([r.serialize() for r in review])
+    else:
+        review = Review.query.filter_by(pname=pname)
         return jsonify([r.serialize() for r in review])
 
 
 @app.route("/getfilterscore", methods=["GET"])
 def get_filterscore():
-    if "desc" in request.json and request.json["desc"] == "False":
-        try:
-            avgscore1 = request.json["avgscore1"]
-        except:
-            avgscore1 = 5
-        try:
-            avgscore2 = request.json["avgscore2"]
-        except:
-            avgscore2 = 5
-        try:
-            avgscore3 = request.json["avgscore3"]
-        except:
-            avgscore3 = 5
-        if "cid" in request.json:
-            cid = request.json["cid"]
-            for row in Course.query.filter_by(cid=cid):
-                cname = row.name
+    if "desc" in request.args and request.args.get("desc") == "False":
+        if 'avgscore1' in request.args:
+            avgscore1 = request.args.get("avgscore1")
         else:
-            cname = request.json["cname"]
+            avgscore1 = 5
+        if 'avgscore2' in request.args:
+            avgscore2 = request.args.get("avgscore2")
+        else:
+            avgscore2 = 5
+        if 'avgscore3' in request.args:
+            avgscore3 = request.args.get("avgscore3")
+        else:
+            avgscore3 = 5
+        if "cid" in request.args:
+            cid = request.args.get("cid")
+            course = Course.query.filter_by(cid=cid)
+            cname = course.name
+        else:
+            cname = request.args("cname")
         temp = Review.query.with_entities(Review.cname,Review.pname).\
             group_by(Review.cname,Review.pname).\
                 having(db.and_(db.func.avg(Review.score1) <= avgscore1,
                 db.func.avg(Review.score2) <= avgscore2,
                 db.func.avg(Review.score3) <= avgscore3)).subquery()
-        review = Review.query.filter(Review.cname==temp.c.cname,Review.pname==temp.c.pname)
+        review = Review.query.filter(Review.cname==temp.c.cname,Review.pname==temp.c.pname,Review.cname==cname)
         return jsonify([r.serialize() for r in review])
     else:
-        try:
-            avgscore1 = request.json["avgscore1"]
-        except:
-            avgscore1 = 0
-        try:
-            avgscore2 = request.json["avgscore2"]
-        except:
-            avgscore2 = 0
-        try:
-            avgscore3 = request.json["avgscore3"]
-        except:
-            avgscore3 = 0
-        if "cid" in request.json:
-            cid = request.json["cid"]
-            for row in Course.query.filter_by(cid=cid):
-                cname = row.name
+        if 'avgscore1' in request.args:
+            avgscore1 = request.args.get("avgscore1")
         else:
-            cname = request.json["cname"]
+            avgscore1 = 0
+        if 'avgscore2' in request.args:
+            avgscore2 = request.args.get("avgscore2")
+        else:
+            avgscore2 = 0
+        if 'avgscore3' in request.args:
+            avgscore3 = request.args.get("avgscore3")
+        else:
+            avgscore3 = 0
+        if "cid" in request.args:
+            cid = request.args.get("cid")
+            course = Course.query.filter_by(cid=cid).first()
+            cname = course.name
+        else:
+            cname = request.args.get("cname")
         temp = Review.query.with_entities(Review.cname,Review.pname).\
             group_by(Review.cname,Review.pname).\
                 having(db.and_(db.func.avg(Review.score1) >= avgscore1,
                 db.func.avg(Review.score2) >= avgscore2,
                 db.func.avg(Review.score3) >= avgscore3)).subquery()
-        review = Review.query.filter(Review.cname==temp.c.cname,Review.pname==temp.c.pname)
+        review = Review.query.filter(Review.cname==temp.c.cname,Review.pname==temp.c.pname,Review.cname==cname)
         return jsonify([r.serialize() for r in review])
 
 
 @app.route("/getall", methods=["GET"])
 def get_all():
-    school = request.json["school"]
-    if "offset" in request.json:  # if user specifiy how many records to show
-        offset=request.json["offset"]
+    school = request.args.get("school")
+    if "offset" in request.args:  # if user specifiy how many records to show
+        offset=request.args.get("offset")
         course=Course.query.filter_by(school=school).limit(offset)
         return jsonify([c.serialize() for c in course])
     else:
