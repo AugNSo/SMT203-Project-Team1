@@ -1,12 +1,26 @@
-import sys
 import time
 import threading
-import random
 import telepot
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
-import telegram
+from telepot.loop import MessageLoop
+import requests
 
+## Current Problem faced:
+## 1. I have declared the global variables (mark) but when I update them in the later on functions, it does not change...
+## 2. line 38 will the the chat_id but I have to pass it as a parameter to other functions instead of letting it become a global variable.
+## 3. Because it is very hard to differentiate what the user inputs so we didn't do much vaildation and assuming user can follow the correct format all the way.
+## 4. If the user input part of the Prof name/ course name, our API will search for them and return the possible output for them to choose. But because of problem 3, 
+##    it is very hard to achieve this function
+## p.s. We have link this bot to our api so from line 113-129 will be hard code for now.
+
+#################################################
+## response1: which method user want to use
+## response2: pname/ cname/ cid             #user input          
+## response3: pname/ cname/ cid            ## This will be from buttons
+## response4: scores
+## response5: optional things
+###################################################
 """
 $ python3.5 skeleton_route.py <token>
 It demonstrates:
@@ -19,98 +33,128 @@ It works like this:
     - `h` - hide custom keyboard
 - Press various buttons to see their effects
 """
-def validation_reply(msg):
-    return bot.sendMessage(chat_id, msg)
+mark = 0
+response1 = ""
+response2 = ""
+getprofcourse = "https://smt203-project-team1.herokuapp.com/getprofcourse"
+# chat_id = "386055474" ## this need to extract from database
 
+#continuous listen
 def on_chat_message(msg):
-    content_type, chat_type, chat_id = telepot.glance(msg)
-    print('Chat:', content_type, chat_type, chat_id)
-    ########################
-    updates = bot.getUpdates()                       ## 这一段只适用于step_2
-    response1 = updates[0]["message"]["text"]
-    step_2(response1)
-    ########################
-    if content_type != 'text':
-        return
+    # chat_id = msg['chat']["id"]
+    content_type, chat_type, chat_id = telepot.glance(msg)                
+    print('Chat:', content_type, chat_type, chat_id)                                                                 
+    if content_type != 'text':                                            
+        return                                                           
+    global response1                                                     
+    global response2
+    global mark                                                       ## 问题： 后面要是改 var 貌似没有用啊！！！！！！！！
+    response = msg['text']                             
+    if response[:6] == "Search":                                        
+        response1 = response
+        step_2(response1, chat_id) 
+    elif mark == 1:
+        response3 = response 
+        step_4(chat_id)       
+    elif mark == 2:
+        response4 = response
+        step_5(chat_id)
+    elif mark == 3:
+        response5 = response
+        msg = "Thank you for your review."
+        validation_reply(msg, chat_id)
+    elif response1 != "" and mark == 0:    
+        response2 = response
+        step_2_vaildation(response2, response1, chat_id)
 
-    command = msg['text'][-1:].lower()
-
-    if command == 'c':
-        # Mirar el "KeyboardButton(text='Location', request_location=True)", lo que hace que se comparta las cordenadas.
+    ########################
+    elif response == 'c' or mark == 10:
         markup = ReplyKeyboardMarkup(keyboard=[
                      ['Search by Course ID', KeyboardButton(text='Search by Course Name')],
                      [KeyboardButton(text = "Search by Professor Name")],
                  ])
         bot.sendMessage(chat_id, 'Pls indicate which methods would you like to use', reply_markup=markup)
-    elif command == 'h':
+    elif response == 'h':
         markup = ReplyKeyboardRemove()
         bot.sendMessage(chat_id, 'Hide custom keyboard', reply_markup=markup)
 
 #######################################################################################################################################
-chat_id = "386055474" ## this need to extract from database
-# text = """Pls enter 1.Professor's name OR 2.Course code OR 3.Course name.
-#         Choose ONE of them with the index infront. 
-#         (i.e 1.Tan Hwee Xian OR 2.SMT203 OR 3.SCSM)"""
-def get_last_update_id(updates):
-    update_ids = []
-    for update in updates["result"]:
-        update_ids.append(int(update["update_id"]))
-    return max(update_ids)
-
-def get_last_chat_id_and_text(updates):
-    num_updates = len(updates["result"])
-    last_update = num_updates - 1
-    text = updates["result"][last_update]["message"]["text"]
-    chat_id = updates["result"][last_update]["message"]["chat"]["id"]
-    return (text, chat_id)
 
 
-def step_2(response1):  ## this need to check what kinds of response from button (need edition)
+def validation_reply(msg, chat_id):
+    return bot.sendMessage(chat_id, msg)
+
+def step_2(response1, chat_id):  
     if response1 == "Search by Course ID":
         msg = "Pls enter course code"
     elif response1 == "Search by Course Name":
         msg = "Pls enter course name"
     elif response1 == "Search by Professor Name":
         msg = "Pls enter professor name"
-    return validation_reply(msg)                              ## this step is just to check user click on which button and giev corresponding respond
+    
+    return validation_reply(msg, chat_id)                              ## this step is just to check user click on which button and give corresponding respond
 
 
 # response2 = "SMT203" ## this need to get from user 
 
-def step_2_vaildation(response2):
+def step_2_vaildation(response2, response1, chat_id):
     if response1 == "Search by Course ID":
         if response2.isalpha() or response2.isdigit():
             msg = "Pls enter the correct format of Course code"
-            return validation_reply(msg)
+            return validation_reply(msg, chat_id)
         else:
-            return step_3(response2)
+            return step_3(response2, response1, chat_id)
     if response1 == "Search by Course Name":
         cname_without_space =response2.replace(" ", "")
         if cname_without_space.isalpha():
-            return step_3(response2)               ## cname may not be complete and contain space
+            return step_3(response2, response1, chat_id)              ## cname may not be complete and contain space
         else:
             msg = "Pls enter the correct format of course name"
-            return validation_reply(msg)
+            return validation_reply(msg, chat_id)
     if response1 == "Search by Professor Name":
         pname_without_space = response2.replace(" ", "")
         if pname_without_space.isalpha():
-            return step_3(response2)     ## pname contains space e.g "Tan Hwee Xian"
+            return step_3(response2, response1, chat_id)     ## pname contains space e.g "Tan Hwee Xian"
         else:
             msg = "Pls enter the correct format of Prof name"
-            return validation_reply(msg)
+            return validation_reply(msg, chat_id)
 
+##############################################################################################
+#call api append result to l
+def step_3(response2, response1, chat_id):  ## vaildate the input and start calling API          
+    global mark
 
-def step_3(response2):  ## vaildate the input and start calling API
     l = []
+    if response1 == "Search by Course ID": 
+        params = {"cid": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["professor"])
+    elif response1 == "Search by Course Name":
+        params = {"cname": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["professor"])
+    elif response1 == "Search by Professor Name":
+        params = {"pname": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["course"])
     ## call our Course API and retrieve corresponding prof and append into list l
     if l == []:
         msg = "Pls check your input"
-        return validation_reply(msg)
-    return send_list(l)
-
-def send_list(l):
+        mark = 10
+        response1 = ""
+        return validation_reply(msg, chat_id), mark, response1    #start from response1                                    ## 这里会让他们从头再来、成功与否取决于 response1 有没有被清零
+    mark = 1
+    return send_list(l, chat_id), mark
+#############################################################################################################
+#prof buttons or couse name
+def send_list(l, chat_id):
     keyboard = []
-    # Mirar el "KeyboardButton(text='Location', request_location=True)", lo que hace que se comparta las cordenadas.
     for i in l:
         z = []
         x = i
@@ -118,35 +162,37 @@ def send_list(l):
         keyboard.append(z)
 
     markup = ReplyKeyboardMarkup(keyboard=keyboard)
-    bot.sendMessage(chat_id, 'Pls indicate which professor you want to review', reply_markup=markup)
+    bot.sendMessage(chat_id, 'Pls indicate which professor/course you want to review', reply_markup=markup)
 
 # response3 = "xxx"      ## base on which button user select
-## 怎么用response3 trigger step_4?
+#score
+def step_4(chat_id):
+    global mark
+    review_scores = """ Please provide scores between 0 to 5 based on 'Clarity of Teaching', 'Workload', 'Grading Fairnes'.(i.e. 3.5,4,5) """
+    mark = 2
+    return bot.sendMessage(chat_id, review_scores), mark
 
-def step_4():
-    review_scores = """ Please provide scores based on 'Clarity of Teaching', 'Workload', 'Grading Fairnes'.(i.e. 3.5,4,5) """
-    return bot.sendMessage(chat_id, review_scores)
-
-def step_5():         ## may change to better way...
+#convert to button
+def step_5(chat_id): 
+    global mark        
     review_qns = """Following questions are optional.
                     1. Any further comment?
                     2. Any advice for prof to improve?
                     3. Your School
                     4. Your current year 
-                    (i.e. 1.Don't bid for this mod, it is tiring, 3.SIS, 3. 2)"""
-    return bot.sendMessage(chat_id, review_qns)    
+                    (i.e. 1.Don't bid for this mod, it is tiring, 3.SIS, 4. 2)"""
+    mark = 3
+    # print(response1)                                                                   ## 到最后 response1 还在、也许可以用来做点事
+    return bot.sendMessage(chat_id, review_qns), mark
+
 #######################################################################################################################################
 
-# Cambiar el Token
-#TOKEN = sys.argv[1]  # get token from command-line
 
-bot = telepot.Bot("782592193:AAGUgd3khDTWnymBdLx8co21UE9ihaIGFPg")
-answerer = telepot.helper.Answerer(bot)
 
-bot.message_loop({'chat': on_chat_message})
+bot = telepot.Bot("830250985:AAFeA-dy4mB1kXZbK_kBc6pBeT5xD7sqPu0")
+MessageLoop(bot, on_chat_message).run_as_thread()
 print('Listening ...')
 
-# step_2(response1)
 # Keep the program running.
 while 1:
     time.sleep(10)
