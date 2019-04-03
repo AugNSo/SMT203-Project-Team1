@@ -110,7 +110,7 @@ def get_review():
 @app.route("/getprofcourse",methods=["GET"])
 def get_profcourse():
     if "cid" in request.args:
-        cid = request.ars.get("cid")
+        cid = request.args.get("cid")
         course = Course.query.filter_by(cid=cid).first()
         cname = course.name
         profcourse = Prof_Course.query.filter_by(cname=cname).all()
