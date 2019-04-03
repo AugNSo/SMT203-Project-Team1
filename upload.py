@@ -1,9 +1,9 @@
 import requests
 import json
 
-url_postprof = 'http://127.0.0.1:5000/postprofessor'
-url_postcourse = 'http://127.0.0.1:5000/postcourse'
-url_postprofcourse = 'http://127.0.0.1:5000/postprofcourse'
+url_postprof = 'https://smt203-project-team1.herokuapp.com/postprofessor'
+url_postcourse = 'https://smt203-project-team1.herokuapp.com/postcourse'
+url_postprofcourse = 'https://smt203-project-team1.herokuapp.com/postprofcourse'
 
 #post course
 with open('data.txt') as f:
