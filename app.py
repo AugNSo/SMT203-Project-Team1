@@ -107,6 +107,23 @@ def get_review():
         review = Review.query.filter_by(cname=cname).limit(15)
         return jsonify([r.serialize() for r in review])
 
+@app.route("/getprofcourse",methods=["GET"])
+def get_profcourse():
+    if "cid" in request.args:
+        cid = request.ars.get("cid")
+        course = Course.query.filter_by(cid=cid).first()
+        cname = course.name
+        profcourse = Prof_Course.query.filter_by(cname=cname).all()
+        return jsonify([p.serialize() for p in profcourse])
+    elif "cname" in request.args:
+        cname = request.args.get("cname")
+        profcourse = Prof_Course.query.filter_by(cname=cname).all()
+        return jsonify([p.serialize() for p in profcourse])
+    elif "pname" in request.args:
+        pname = request.args.get("pname")
+        profcourse = Prof_Course.query.filter_by(pname=pname).all()
+        return jsonify([p.serialize() for p in profcourse])
+
 
 @app.route("/getmodreview", methods=["GET"])
 def get_modreview():
