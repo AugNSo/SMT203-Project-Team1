@@ -4,6 +4,7 @@ import telepot
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.loop import MessageLoop
+import requests
 
 ## Current Problem faced:
 ## 1. I have declared the global variables (mark) but when I update them in the later on functions, it does not change...
@@ -15,7 +16,7 @@ from telepot.loop import MessageLoop
 
 #################################################
 ## response1: which method user want to use
-## response2: pname/ cname/ cid                       
+## response2: pname/ cname/ cid             #user input          
 ## response3: pname/ cname/ cid            ## This will be from buttons
 ## response4: scores
 ## response5: optional things
@@ -35,8 +36,10 @@ It works like this:
 mark = 0
 response1 = ""
 response2 = ""
+getprofcourse = "https://smt203-project-team1.herokuapp.com/getprofcourse"
 # chat_id = "386055474" ## this need to extract from database
 
+#continuous listen
 def on_chat_message(msg):
     # chat_id = msg['chat']["id"]
     content_type, chat_type, chat_id = telepot.glance(msg)                
@@ -117,25 +120,39 @@ def step_2_vaildation(response2, response1, chat_id):
             return validation_reply(msg, chat_id)
 
 ##############################################################################################
+#call api append result to l
 def step_3(response2, response1, chat_id):  ## vaildate the input and start calling API          
     global mark
 
     l = []
     if response1 == "Search by Course ID": 
-        l = ["XYZ", "ABC", "DEF"]
-    if response1 == "Search by Course Name":
-        l = ["XYZ", "ABC", "DEF"]
-    if response1 == "Search by Professor Name":
-        l = ["IS111", "SMT222", "IS123"]
+        params = {"cid": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["professor"])
+    elif response1 == "Search by Course Name":
+        params = {"cname": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["professor"])
+    elif response1 == "Search by Professor Name":
+        params = {"pname": response2}
+        url = getprofcourse
+        request = requests.get(url=url,params=params)
+        for i in request.json():
+            l.append(i["course"])
     ## call our Course API and retrieve corresponding prof and append into list l
     if l == []:
         msg = "Pls check your input"
         mark = 10
         response1 = ""
-        return validation_reply(msg, chat_id), mark, response1                                        ## 这里会让他们从头再来、成功与否取决于 response1 有没有被清零
+        return validation_reply(msg, chat_id), mark, response1    #start from response1                                    ## 这里会让他们从头再来、成功与否取决于 response1 有没有被清零
     mark = 1
     return send_list(l, chat_id), mark
 #############################################################################################################
+#prof buttons or couse name
 def send_list(l, chat_id):
     keyboard = []
     for i in l:
@@ -148,13 +165,14 @@ def send_list(l, chat_id):
     bot.sendMessage(chat_id, 'Pls indicate which professor/course you want to review', reply_markup=markup)
 
 # response3 = "xxx"      ## base on which button user select
-
+#score
 def step_4(chat_id):
     global mark
-    review_scores = """ Please provide scores based on 'Clarity of Teaching', 'Workload', 'Grading Fairnes'.(i.e. 3.5,4,5) """
+    review_scores = """ Please provide scores between 0 to 5 based on 'Clarity of Teaching', 'Workload', 'Grading Fairnes'.(i.e. 3.5,4,5) """
     mark = 2
     return bot.sendMessage(chat_id, review_scores), mark
 
+#convert to button
 def step_5(chat_id): 
     global mark        
     review_qns = """Following questions are optional.
@@ -162,7 +180,7 @@ def step_5(chat_id):
                     2. Any advice for prof to improve?
                     3. Your School
                     4. Your current year 
-                    (i.e. 1.Don't bid for this mod, it is tiring, 3.SIS, 3. 2)"""
+                    (i.e. 1.Don't bid for this mod, it is tiring, 3.SIS, 4. 2)"""
     mark = 3
     # print(response1)                                                                   ## 到最后 response1 还在、也许可以用来做点事
     return bot.sendMessage(chat_id, review_qns), mark
