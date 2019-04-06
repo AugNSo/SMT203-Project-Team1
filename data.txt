@@ -355,8 +355,8 @@ SOB|Lieven Demeester|Managing Process Improvement|MGMT317
 SOB|William Fong|Managing Process Improvement|MGMT317
 SOB|Koh Zhixiu|Design Thinking and Innovation|MGMT318
 SOB|Terence Fan Ping-Ching|Management of Technology and Innovation|MGMT319
-SOB|Thomas Menkhoff|Innovations for Asia?s Smart Cities|MGMT320
-SOB|Kan Siew Ning|Innovations for Asia?s Smart Cities|MGMT320
+SOB|Thomas Menkhoff|Innovations for Asia's Smart Cities|MGMT320
+SOB|Kan Siew Ning|Innovations for Asia's Smart Cities|MGMT320
 SOB|Reddi Rayalu Kotha|Entrepreneurship Practicum|MGMT327
 SOB|Thomas Menkhoff|Business Study Mission ( China's Belt and Road Initiative)|MGMT301
 SOB|Andrew Min Han Chin|Business Study Mission ( China's Belt and Road Initiative)|MGMT301
@@ -456,8 +456,8 @@ SOA|Chen Xia|Corporate Reporting and Financial Analysis|ACCT201
 SOA|Wong Suay Peng|Accounting Information Systems|ACCT221
 SOA|Travis Chow|Taxation|ACCT223
 SOA|Goh Beng Wee|Financial Reporting and Analysis|ACCT224
-SOA|Leong Kwong Sin|Ethics and Social Responsibility|"ACCT321 "
-SOA|Jean Seow|Ethics and Social Responsibility|"ACCT321 "
+SOA|Leong Kwong Sin|Ethics and Social Responsibility|ACCT321 
+SOA|Jean Seow|Ethics and Social Responsibility|ACCT321
 SOA|Sterling Huang|Audit and Assurance|ACCT331
 SOA|Lou Yun|Accounting Thought and Practice|ACCT332
 SOA|Zhang Liandong|Accounting Thought and Practice|ACCT332
@@ -481,3 +481,203 @@ SOA|Benjamin Lee|Statistical Programming|ACCT419
 SOA|Wang Jiwei|Forecasting and Forensic Analytics|ACCT420
 SOA|Sanjay Panjabi|Audit Analytics (SMU-X)|ACCT423
 SOA|Tee Chong Yu|Audit Analytics (SMU-X)|ACCT423
+SOL|Adeline Chong|LAW302|Commercial Conflict of Laws
+SOL|Adeline Chong|LAW303|Law of Equity & Trusts (JD)
+SOL|Aleksandar Georgiev|LGST101|Business Law
+SOL|Alvin See|LAW202|Law of Property
+SOL|Alvin See|LAW303|Law of Equity & Trusts
+SOL|Amy Seow|LGST001|Ethics & Social Responsibility
+SOL|Andre Maniam|LAW451|Pre-trial Practice in Civil Litigation
+SOL|Koh Swee Yen|LAW451|Pre-trial Practice in Civil Litigation
+SOL|Lionel Leo|LAW451|Pre-trial Practice in Civil Litigation
+SOL|Aurelio Gurrea Martínez|LAW490|International and Comparative Insolvency Law
+SOL|Aurelio Gurrea Martínez|LAW433|Financial and Securities Regulation
+SOL|Aurelio Gurrea Martínez|LAW494|Comparative Corporate Governance
+SOL|Bala Reddy|LAW466|Evidence Litigation & the Criminal Process
+SOL|Wong Li Tein|LAW466|Evidence Litigation & the Criminal Process
+SOL|Gordon Oh|LAW466|Evidence Litigation & the Criminal Process
+SOL|Ben Ong|LGST101|Business Law
+SOL|Ben Ong|LAW204|Constitutional & Administrative Law
+SOL|Chan Wing Cheong|LAW428|Family Law
+SOL|Chandra Mohan|LAW103|Criminal Law
+SOL|Chandra Mohan|LAW001|Ethics & Social Responsibility
+SOL|Chen Li|LAW497|Chinese Commercial Arbitration
+SOL|Chen Siyuan|LAW307|Law of Evidence
+SOL|Chen Siyuan|LAW416|International Moots 1
+SOL|Chen Siyuan|LAW430|International Moots 2 [SMU-X]
+SOL|Chen Siyuan|LAW307|Law of Evidence
+SOL|Chen Siyuan|LAW416|International Moots 1
+SOL|Chris Chen|LAW201|Law of Business Organisations
+SOL|Chris Chen|LGST201|Company Law
+SOL|Chris Chen|LAW418|Insurance Law
+SOL|Darius Chan/Nicholas Poon|LAW406|International Commercial Arbitration
+SOL|David Llewelyn|LAW401|Intellectual Property Law
+SOL|David Llewelyn|LAW414|International Commercialisation of Intellectual Property
+SOL|David Llewelyn|LAW414|International Commercialisation of Intellectual Property
+SOL|David Smith|LAW001|Ethics & Social Responsibility (JD)
+SOL|David Smith|LGST001|Ethics & Social Responsibility
+SOL|Deborah Koh|LGST101|Business Law
+SOL|Dino Kritsiotis|LAW488|International Humanitarian Law
+SOL|Dominic Liew|LGST101|Business Law
+SOL|Dorcas Quek|LAW106|Legal Research & Writing I
+SOL|Dov Greenbaum|LAW489|Introduction to Law & Technology
+SOL|Edward Ti|LAW202|Law of Property
+SOL|Edward Ti|LGST210|Law of Real Estate
+SOL|Elgin Tay|LAW420|Jurisprudence: Modern and Critical Theories of Law
+SOL|Eugene Tan|LGST001|Ethics & Social Responsibility
+SOL|Eugene Tan|LGST001|Ethics & Social Responsibility
+SOL|Eugene Tan|LAW204|Constitutional & Administrative Law
+SOL|Eugene Tan|LAW204|Constitutional & Administrative Law
+SOL|Eugene Tan|LAW204|Constitutional & Administrative Law
+SOL|Eugene Tan|LGST001|Ethics & Social Responsibility
+SOL|Eunice Chua|LAW106|Legal Research & Writing I
+SOL|Farhana Siddiqui|LAW459|Drafting in Corporate Practice
+SOL|Ralph Lim|LAW459|Drafting in Corporate Practice
+SOL|Lam Shiao Ning|LAW459|Drafting in Corporate Practice
+SOL|Fong Wei Li|LAW106|Legal Research & Writing I
+SOL|Fong Wei Li|LAW477|Law and Psychology
+SOL|Gary Chan|LAW105|Law of Torts
+SOL|Gary Chan|LAW105|Law of Torts (JD)
+SOL|Gary Low|LAW108|The Singapore Legal System
+SOL|Gary Low|LAW443|Law of International Trade
+SOL|Goh Yihan|LAW101|Contract Law 1
+SOL|Henry Gao|LAW469|Introduction to Chinese History Culture Economics and Law
+SOL|Henry Gao|LGST001|Ethics & Social Responsibility
+SOL|Henry Gao|LAW410|WTO:Law and Policy
+SOL|Henry Gao|LAW410|WTO:Law and Policy
+SOL|Ian Teo|LAW423|Shipping & Admiralty Law
+SOL|Toh Kian Sing|LAW423|Shipping & Admiralty Law
+SOL|Kendall Tan|LAW423|Shipping & Admiralty Law
+SOL|James Harris|LAW449|Legal and Commercial Principles in Project Financing Transactions
+SOL|Bruce Schulberg|LAW449|Legal and Commercial Principles in Project Financing Transactions
+SOL|Jeremy Leong|LGST001|Ethics & Social Responsibility
+SOL|Jerrold Soh|LAW105|Law of Torts
+SOL|Jerrold Soh|LGST101|Business Law
+SOL|Jiang Ke Yue|LAW107|Legal Research & Writing II
+SOL|Jiang Ke Yue|LAW107|Legal Research & Writing II
+SOL|Kenny Chng|LAW301|Legal Theory & Philosophy
+SOL|Kenny Chng|LAW204|Constitutional & Administrative Law (JD)
+SOL|Kenny Lau|LGST101|Business Law
+SOL|Kenny Lau|LGST101|Business Law
+SOL|Kevin Yong|LAW487|Topics in Financial Crime
+SOL|Jacky Leong|LAW487|Topics in Financial Crime
+SOL|Jiang Ke Yue|LAW487|Topics in Financial Crime
+SOL|Lau Kah Hee|LAW307|Law of Evidence
+SOL|Lau Kah Hee|LGST201|Company Law
+SOL|Lau Kah Hee|LAW307|Law of Evidence
+SOL|Lau Kwan Ho|LAW102|Contract Law 2
+SOL|Lau Kwan Ho|LAW102|Contract Law 2
+SOL|Lau Kwan Ho|LGST101|Business Law
+SOL|Lee Pey Woan|LAW205|Corporate Law (JD)
+SOL|Lee Pey Woan|LAW205|Corporate Law
+SOL|Lee Pey Woan|LAW205|Corporate Law (JD)
+SOL|Lee Shen Yang|LGST101|Business Law
+SOL|Lionel Leo|LAW307|Law of Evidence
+SOL|Lionel Leo|LAW307|Law of Evidence
+SOL|Liu Kung-Chung|LAW483|Law and Regulation
+SOL|Liu Kung-Chung|LAW493|IP Law & Comp Law at Interplay
+SOL|Liu Kung-Chung|LAW463|Intellectual Assets & the Law in Asian Economies
+SOL|Locknie Hsu|LGST101|Business Law
+SOL|Locknie Hsu|LAW422|Trade & Investment Law
+SOL|Locknie Hsu|LGST101|Business Law
+SOL|Locknie Hsu|LAW491|Law and Digital Commerce [SMU-X]
+SOL|Loo Wee Ling|LGST101|Business Law
+SOL|Loo Wee Ling|LGST101|Business Law
+SOL|Loo Wee Ling|LGST101|Business Law
+SOL|Loo Wee Ling|LAW001|Ethics & Social Responsibility
+SOL|Loo Wee Ling|LGST001|Ethics & Social Responsibility
+SOL|Loo Wee Ling|LGST001|Ethics & Social Responsibility
+SOL|Loo Wee Ling|LAW001|Ethics & Social Responsibility
+SOL|Low Kee Yang|LAW105|Law of Torts
+SOL|Low Kee Yang|LAW105|Law of Torts
+SOL|Maartje De Visser|LAW203|Comparative Legal Systems
+SOL|Maartje De Visser|LAW203|Comparative Legal Systems (JD)
+SOL|Maartje De Visser|LAW470|Comparative Constitutional Law
+SOL|Maartje De Visser|LAW203|Comparative Legal Systems
+SOL|Mahdev Mohan|LAW404|Public International Law
+SOL|Mahdev Mohan|LAW475|Transnational Business & Human Rights
+SOL|Mahdev Mohan|LAW404|Public International Law
+SOL|Mahdev Mohan|LAW475|Transnational Business & Human Rights
+SOL|Makoto Hong|LGST001|Ethics & Social Responsibility
+SOL|Mark Findlay|LAW301|Legal Theory & Philosophy (JD)
+SOL|Mark Findlay|LAW301|Legal Theory & Philosophy
+SOL|Mark Findlay|LAW419|International and Comparative Criminal Justice
+SOL|Melvyn Chew|LGST201|Company Law
+SOL|Melvyn Chew|LGST201|Company Law
+SOL|Nadja Alexander|LAW478|Professional Mediation Skills
+SOL|Nadja Alexander|LAW481|International Mediation Law and Practice
+SOL|Nadja Alexander|LAW482|Dealmaking and Dispute Resolution: Negotiation in an Age of Disruption
+SOL|Nadja Alexander|LAW478|Professional Mediation Skills
+SOL|Nadja Alexander|LAW481|International Mediation Law and Practice
+SOL|Nadja Alexander|LAW482|Dealmaking and Dispute Resolution: Negotiation in an Age of Disruption
+SOL|Nandakumar Ponniya|LAW447|International Construction Law
+SOL|Ng Kim Beng|LAW447|International Construction Law
+SOL|Nicholas Liu|LAW107|Legal Research & Writing II
+SOL|Nicholas Poon|LAW107|Legal Research & Writing II
+SOL|Nick Chiam|LAW301|Legal Theory & Philosophy
+SOL|Ong Ee Ing|LAW106|Legal Research & Writing I(JD)
+SOL|Ong Ee Ing|LAW107|Legal Research & Writing II
+SOL|Ong Ee Ing|LAW107|Legal Research & Writing II
+SOL|Ong Ee Ing|LAW107|Legal Research & Writing II (JD)
+SOL|Ong Ee Ing|LAW107|Legal Research & Writing II (JD)
+SOL|Ong Ee Ing|LAW496|Launching an Online Financial Business - The Lawyer's Role [SMU-X]
+SOL|Linklaters|LAW496|Launching an Online Financial Business - The Lawyer's Role [SMU-X]
+SOL|Warren Chik|LAW496|Launching an Online Financial Business - The Lawyer's Role [SMU-X]
+SOL|Chris Chen|LAW496|Launching an Online Financial Business - The Lawyer's Role [SMU-X]
+SOL|Pasha Hsieh|LGST001|Ethics & Social Responsibility
+SOL|Pasha Hsieh|LGST223|Law of International Trade
+SOL|Pasha Hsieh|LAW438|Law Study Mission to Asia (Taiwan) [SMU-X]
+SOL|Pearlie Koh|LAW201|Law of Business Organisations (JD)
+SOL|Pearlie Koh|LAW205|Corporate Law
+SOL|Pearlie Koh|LAW205|Corporate Law
+SOL|Rathna N. Koman|LAW103|Criminal Law
+SOL|Richard Hayler|LAW492|Dispute Resolution:The Role of Experts
+SOL|Sampson Lim|LGST101|Business Law
+SOL|Samuel Ng|LGST101|Business Law
+SOL|Samuel Ng|LGST101|Business Law
+SOL|Samuel Ng|LGST001|Ethics & Social Responsibility
+SOL|Samuel Ng|LGST001|Ethics & Social Responsibility
+SOL|Samuel Ng|LGST201|Company Law
+SOL|Samuel Ng|LGST001|Ethics & Social Responsibility
+SOL|Saw Cheng Lim|LGST101|Business Law
+SOL|Saw Cheng Lim|LAW401|Intellectual Property Law
+SOL|Saw Teng Sheng|LGST101|Business Law
+SOL|Shaun Pereira|LAW107|Legal Research & Writing II
+SOL|Stephen Bull|LAW201|Law of Business Organisations
+SOL|Stephen Bull|LGST201|Company Law
+SOL|Stephen Bull|LGST201|Company Law
+SOL|Stephen Bull|LAW429|Corporate Insolvency Law
+SOL|Tan Boon Heng|LAW462|Introduction to Civil Procedure
+SOL|Tan Boon Heng|LAW476|Medical Law and Health Policy
+SOL|Tan Boon Heng|LAW307|Law of Evidence (JD)
+SOL|Tan Boon Heng|LAW462|Introduction to Civil Procedure
+SOL|Tan Boon Heng|LAW307|Law of Evidence
+SOL|Tan Seow Hon|LAW301|Legal Theory & Philosophy
+SOL|Tan Weiming|LGST101|Business Law
+SOL|Tay Wei Sheng Patrick|LGST201|Company Law (MT2)
+SOL|Terence Ang|LGST101|Business Law
+SOL|Terence Ang|LGST101|Business Law
+SOL|Tham Chee Ho|LAW101|Contract Law 1
+SOL|Tham Chee Ho|LAW101|Contract Law 1 (JD)
+SOL|Vincent Ooi|LAW102|Contract Law 2
+SOL|Vincent Ooi|LAW102|Contract Law 2
+SOL|Viveganandam Jesudevan|LAW495|Compliance and Risk Management for Lawyers
+SOL|Viveganandam Jesudevan|LAW495|Compliance and Risk Management for Lawyers
+SOL|Wan Wai Yee|LAW205|Corporate Law
+SOL|Wan Wai Yee|LAW417|Law of Mergers & Acquisitions
+SOL|Warren Chik|LAW.486|Privacy and Data Protection Law
+SOL|Lanx Goh|LAW.486|Privacy and Data Protection Law
+SOL|Wu Ying-chieh|LAW203|Comparative Legal Systems
+SOL|Wu Ying-chieh|LAW203|Comparative Legal Systems
+SOL|Yao Qingzhe|LGST101|Business Law
+SOL|Yeo Chuan Tat|LGST001|Ethics & Social Responsibility
+SOL|Yeo Tiong Min|LAW302|Commercial Conflict of Laws (JD)
+SOL|Yeo Tiong Min|LAW102|Contract Law 2 (JD)
+SOL|Yeo Tiong Min|LAW302|Commercial Conflict of Laws
+SOL|Yeo Tiong Min|LAW302|Commercial Conflict of Laws
+SOL|Yip Man|LAW303|Law of Equity & Trusts
+SOL|Yip Man|LAW303|Law of Equity & Trusts
+SOL|Zhang Wei|LAW402|Chinese Contract Law
+SOL|Zhang Wei|LAW484|Economic Analysis of Law
+SOL|Zhang Wei|LAW438|Law Study Mission to Asia (Beijing) [SMU-X]
+SOL|Zhong Zewei|LGST101|Business Law

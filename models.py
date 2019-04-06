@@ -96,7 +96,6 @@ class Review(db.Model):
 
     def serialize(self):
         return{
-            'reviewer' : self.reviewer,
             'professor' : self.pname,
             'course' : self.cname,
             'score1' : self.score1,
