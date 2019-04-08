@@ -53,12 +53,13 @@ comment = ''
 advice = ''
 school = ''
 year = 1
-stage_dic = {}
+mark_dic = {}
+response_list = []
 schools = ['SIS','SOE','SOB','SOA','SOSS','SOL']
 # chat_id = "386055474" ## this need to extract from database
 
 def stage(chat_id, response):
-    stage_dic[chat_id] = [stage, response]
+    mark_dic[chat_id] = [stage, response]
 
 #continuous listen
 def on_chat_message(msg):
@@ -73,7 +74,16 @@ def on_chat_message(msg):
     global mark
     global stage_dic    #########store user chat_id and save the response and stage
     response = msg['text']
+
+
+
     if response == '/start':
+
+        if chat_id not in mark_dic:
+            mark = -1
+            respond = []
+            mark_dic[chat_id] = [mark, respond]
+
         msg = "👋 Please type / to choose /review or /search"
         validation_reply(msg, chat_id)
     elif response == '/review':#review profs
@@ -82,7 +92,7 @@ def on_chat_message(msg):
                      [KeyboardButton(text = "Post by Professor Name")],
                  ])
         bot.sendMessage(chat_id, 'Please indicate which methods would you like to use', reply_markup=markup)
-        mark = 0
+        mark_dic[chat_id][0] = 0
     elif response == '/search':#search reviews
         markup = ReplyKeyboardMarkup(keyboard=[
                      [KeyboardButton(text='Search by Course ID')], [KeyboardButton(text='Search by Course Name')],
@@ -204,109 +214,121 @@ def search_step_3(response2, response1, chat_id):
     global pname
     url = "http://smt203-project-team1.herokuapp.com/getreview"
     result = []
-    dic = {}
-    prof_list = []
-    count = 0
+    review = {}
     l = []
-    comment = None
-    advice = None
     final = ''
     try:
         if response1 == "Search by Course ID":
             params = {"cid": response2}
             request = requests.get(url=url,params=params)
             for i in request.json():
-                if i["professor"] not in dic:
+                comment = []
+                advice = []
+                if i["professor"] not in review:
                     if i["comment"] != None:
-                        comment = i["comment"]
-                    else:
-                        comment = None
+                        comment.append(i["comment"])
                     if i["advice"] != None:
-                        advice = i["advice"]
-                    else:
-                        advice = None
+                        advice.append(i["advice"])
                     score1 = i["score1"]
                     score2 = i["score2"]
                     score3 = i["score3"]
                     count = 1
-                    dic[i["professor"]] = [score1, score2, score3, count, comment, advice]
+                    review[i["professor"]] = [score1, score2, score3, count, comment, advice]
                 else:
-                    dic[i["professor"]][0] += i["score1"]
-                    dic[i["professor"]][1] += i["score2"]
-                    dic[i["professor"]][2] += i["score3"]
-                    dic[i["professor"]][3] += 1
+                    review[i["professor"]][0] += i["score1"]
+                    review[i["professor"]][1] += i["score2"]
+                    review[i["professor"]][2] += i["score3"]
+                    review[i["professor"]][3] += 1
                     if i["comment"] != None:
-                        if dic[i["professor"]][4] == None:
-                            dic[i["professor"]][4].append(i["comment"])
+                        review[i["professor"]][4].append(i["comment"])
                     if i["advice"] != None:
-                        if dic[i["professor"]][5] == None:
-                            dic[i["professor"]][5].append(i["advice"])
-            for k, v in dic.items():
+                        review[i["professor"]][5].append(i["advice"])
+            for k, v in review.items():
                 pname = k
                 s1 = v[0] / v[3]
                 s2 = v[1] / v[3]
                 s3 = v[2] / v[3]
-                if v[4] != None:
-                    comment = ''.join(v[4])
-                else:
+                if v[4] != []:
                     comment = v[4]
-                if v[5] != None:
-                    advice = ''.join(v[5])
                 else:
+                    comment = None
+                if v[5] != []:
                     advice = v[5]
+                else:
+                    advice = None
                 re = [pname, s1, s2, s3, comment, advice]
                 result.append(re)
             mark = 10
             for i in result:
-                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \n Advices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5])
-            return validation_reply(dic, chat_id), mark
+                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness.\nComments:".format(i[0], i[1], i[2], i[3])
+                if i[4] == None:
+                    final += "\n`None`"
+                else:
+                    for a in i[4]:
+                        final += "\n`{0}`".format(a)
+                final += "\nAdvices: "
+                if i[5] == None:
+                    final += "\n`None`"
+                else:
+                    for b in i[5]:
+                        final += "\n`{0}`".format(b)
+                final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
+            return validation_reply(final, chat_id), mark
         elif response1 == "Search by Course Name":
             params = {"cname": response2}
             request = requests.get(url=url,params=params)
             for i in request.json():
-                if i["professor"] not in dic:
+                comment = []
+                advice = []
+                if i["professor"] not in review:
                     if i["comment"] != None:
-                        comment = i["comment"]
-                    else:
-                        comment = None
+                        comment.append(i["comment"])
                     if i["advice"] != None:
-                        advice = i["advice"]
-                    else:
-                        advice = None
+                        advice.append(i["advice"])
                     score1 = i["score1"]
                     score2 = i["score2"]
                     score3 = i["score3"]
                     count = 1
-                    dic[i["professor"]] = [score1, score2, score3, count, comment, advice]
+                    review[i["professor"]] = [score1, score2, score3, count, comment, advice]
                 else:
-                    dic[i["professor"]][0] += i["score1"]
-                    dic[i["professor"]][1] += i["score2"]
-                    dic[i["professor"]][2] += i["score3"]
-                    dic[i["professor"]][3] += 1
+                    review[i["professor"]][0] += i["score1"]
+                    review[i["professor"]][1] += i["score2"]
+                    review[i["professor"]][2] += i["score3"]
+                    review[i["professor"]][3] += 1
                     if i["comment"] != None:
-                        if dic[i["professor"]][4] == None:
-                            dic[i["professor"]][4].append(i["comment"])
+                        review[i["professor"]][4].append(i["comment"])
                     if i["advice"] != None:
-                        if dic[i["professor"]][5] == None:
-                            dic[i["professor"]][5].append(i["advice"])
-            for k, v in dic.items():
+                        review[i["professor"]][5].append(i["advice"])
+            for k, v in review.items():
                 pname = k
                 s1 = v[0] / v[3]
                 s2 = v[1] / v[3]
                 s3 = v[2] / v[3]
-                if v[4] != None:
-                    comment = ''.join(v[4])
-                else:
+                if v[4] != []:
                     comment = v[4]
-                if v[5] != None:
-                    advice = ''.join(v[5])
                 else:
+                    comment = None
+                if v[5] != []:
                     advice = v[5]
+                else:
+                    advice = None
                 re = [pname, s1, s2, s3, comment, advice]
                 result.append(re)
             mark = 10
             for i in result:
-                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \n Advices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5])
+                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness.".format(i[0], i[1], i[2], i[3])
+                if i[4] == None:
+                    final += "\n`None`"  
+                else: 
+                    for a in i[4]:
+                        final += "\n`{0}`".format(a)
+                final += "\nAdvices: "
+                if i[5] == None:
+                    final += "\n`None`"
+                else:
+                    for b in i[5]:
+                        final += "\n`{0}`".format(b)
+                final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
             return validation_reply(final, chat_id), mark
         elif response1 == "Search by Professor Name":# getmodreview function
             global r
@@ -317,7 +339,7 @@ def search_step_3(response2, response1, chat_id):
             if request.json() == [] or request.status_code == 500:
                 msg = "Please check your input"
                 mark = 0.5
-                return validation_reply(request.json(), chat_id), mark
+                return validation_reply(msg, chat_id), mark
             else:
                 for i in request.json():
                     if i["course"] not in l:
@@ -344,15 +366,13 @@ def get_modreview(r, response3, chat_id):
     final = ''
     if response3 == "All":
         for i in r:
+            comment =[]
+            advice = []
             if i["course"] not in review:
                 if i["comment"] != None:
-                    comment = i["comment"]
-                else:
-                    comment = None
+                    comment.append(i["comment"])
                 if i["advice"] != None:
-                    advice = i["advice"]
-                else:
-                    advice = None
+                    advice.append(i["advice"])
                 score1 = i["score1"]
                 score2 = i["score2"]
                 score3 = i["score3"]
@@ -364,42 +384,50 @@ def get_modreview(r, response3, chat_id):
                 review[i["course"]][2] += i["score3"]
                 review[i["course"]][3] += 1
                 if i["comment"] != None:
-                    if review[i["course"]][4] == None:
-                        review[i["course"]][4].append(i["comment"])
+                    review[i["course"]][4].append(i["comment"])
                 if i["advice"] != None:
-                    if review[i["course"]][5] == None:
-                        review[i["course"]][5].append(i["advice"])
+                    review[i["course"]][5].append(i["advice"])
         for k, v in review.items():
             cname = k
             s1 = v[0] / v[3]
             s2 = v[1] / v[3]
             s3 = v[2] / v[3]
-            if v[4] != None:
-                comment = ''.join(v[4])
-            else:
+            if v[4] != []:
                 comment = v[4]
-            if v[5] != None:
-                advice = ''.join(v[5])
             else:
+                comment = None
+            if v[5] != []:
                 advice = v[5]
+            else:
+                advice = None
             re = [pname, s1, s2, s3, comment, advice, cname]
             result.append(re)
         for i in result:
-            final += "\n👨‍🏫 Prof *{0}* in course *{6}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \nAdvices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5],i[6])
+            final += "\n👨‍🏫 Prof *{0}* in course *{4}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nComments:".format(i[0], i[1], i[2], i[3],i[6])
+            if i[4] == None:
+                final += "\n`None`"
+            else:
+                for a in i[4]:
+                    final += "\n`{0}`".format(a)
+            final += "\nAdvices: "
+            if i[5] == None:
+                final += "\n`None`"
+            else:
+                for b in i[5]:
+                    final += "\n`{0}`".format(b)
+            final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
         return validation_reply(final, chat_id), mark
     else:
         cname = response3
         for i in r:
+            comment =[]
+            advice = []
             if i["course"] == cname:
                 if i["course"] not in review:
                     if i["comment"] != None:
-                        comment = i["comment"]
-                    else:
-                        comment = None
+                        comment.append(i["comment"])
                     if i["advice"] != None:
-                        advice = i["advice"]
-                    else:
-                        advice = None 
+                        advice.append(i["advice"])
                     score1 = i["score1"]
                     score2 = i["score2"]
                     score3 = i["score3"]
@@ -411,28 +439,38 @@ def get_modreview(r, response3, chat_id):
                     review[i["course"]][2] += i["score3"]
                     review[i["course"]][3] += 1
                     if i["comment"] != None:
-                        if review[i["course"]][4] == None:
-                            review[i["course"]][4].append(i["comment"])
+                        review[i["course"]][4].append(i["comment"])
                     if i["advice"] != None:
-                        if review[i["course"]][5] == None:
-                            review[i["course"]][5].append(i["advice"])
+                        review[i["course"]][5].append(i["advice"])
         for k, v in review.items():
             cname = k
             s1 = v[0] / v[3]
             s2 = v[1] / v[3]
             s3 = v[2] / v[3]
-            if v[4] != None:
-                comment = ''.join(v[4])
-            else:
+            if v[4] != []:
                 comment = v[4]
-            if v[5] != None:
-                advice = ''.join(v[5])
             else:
+                comment = None
+            if v[5] != []:
                 advice = v[5]
+            else:
+                advice = None
             re = [pname, s1, s2, s3, comment, advice, cname]
             result.append(re)
         for i in result:
-            final += "\n👨‍🏫 Prof *{0}* in course *{6}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \n Advices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5],i[6])
+            final += "\n👨‍🏫 Prof *{0}* in course *{4}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nComments:".format(i[0], i[1], i[2], i[3],i[6])
+            if i[4] == None:
+                final += "\n`None`"
+            else:
+                for a in i[4]:
+                    final += "\n`{0}`".format(a)
+            final += "\nAdvices: "
+            if i[5] == None:
+                final += "\n`None`"
+            else:
+                for b in i[5]:
+                    final += "\n`{0}`".format(b)
+            final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
         return validation_reply(final, chat_id), mark
 ##############################################################################################
 #call api append result to l
@@ -440,6 +478,7 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
     global mark
     global cname
     global pname
+    global response_list
     l = []
     url = getprofcourse
     try:
@@ -474,8 +513,9 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
                 for i in request.json():
                     l.append(i["course"])
         mark = 1
+        response_list = l
         msg = 'Please indicate which professor/course you want to review.🌘'
-        return send_list(l, msg, chat_id), mark, cname, pname
+        return send_list(l, msg, chat_id), mark, cname, pname, response_list
     except:
         msg = "Please check your input"
         mark = 0
@@ -498,6 +538,10 @@ def step_4(response3, chat_id):
     global mark
     global cname
     global pname
+    if response3 not in response_list:
+        mark = 1
+        msg = "Please check your input."
+        return validation_reply(msg, chat_id), mark
     if response1 == "Post by Course ID":
         pname = response3
     elif response1 == "Post by Course Name":
@@ -521,7 +565,7 @@ def step_5(chat_id):
     mark = 3
     #return bot.sendMessage(chat_id, review_qns), mark
     msg = "Following questions are optional. Please simply provide the information or press 'Skip' to skip the question."
-    l = ["Skip Further comment"]
+    l = ["Skip further comment"]
     msg = "Please enter further comment for the prof or course if any.🌖"
     return send_list(l, msg, chat_id), mark
 
@@ -531,7 +575,7 @@ def step_6_1(response5, chat_id):
     l = ["Skip for advice"]
     msg = "Please enter your advice for prof to improve if any.🌕"
     try:
-        if response5 == "Skip Further comment":
+        if response5 == "Skip further comment":
             comment = None
             mark = 4
             return send_list(l, msg, chat_id),mark, comment
@@ -550,7 +594,7 @@ def step_6_2(response6, chat_id):
     l = ["Skip entering school"]
     msg = "Please enter your school. E.g. *SIS*🌝"
     try:
-        if response6 == "Skip for advice":
+        if response6 == "Skip for advice" or response6 == "Skip further comment":
             advice = None
             mark = 5
             return send_list(l, msg, chat_id),mark, advice
