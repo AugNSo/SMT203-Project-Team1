@@ -68,8 +68,7 @@ def on_chat_message(msg):
     global response1                                                     
     global response2
     global response3
-    global mark_dic
-    global stage_dic    #########store user chat_id and save the response and stage
+    global mark_dic   #########store user chat_id and save the response and stage
     response = msg['text']
 
     if chat_id not in mark_dic:
@@ -232,7 +231,9 @@ def search_step_3(response2, response1, chat_id):
             request = requests.get(url=url,params=params)
             if request.json() == [] or request.status_code == 500:
                 msg = "No review available. Do you want to post a review?"
-                mark_dic[chat_id][0] = -1
+                validation_reply(msg, chat_id)
+                msg = "/review"
+                mark_dic[chat_id][0] = 0
                 return validation_reply(msg, chat_id), mark_dic
             for i in request.json():
                 comment = []
@@ -296,7 +297,9 @@ def search_step_3(response2, response1, chat_id):
             request = requests.get(url=url,params=params)
             if request.json() == [] or request.status_code == 500:
                 msg = "No review available. Do you want to post a review?"
-                mark_dic[chat_id][0] = -1
+                validation_reply(msg,chat_id)
+                msg = "/review"
+                mark_dic[chat_id][0] = 0
                 return validation_reply(msg, chat_id), mark_dic
             for i in request.json():
                 comment = []
@@ -362,7 +365,9 @@ def search_step_3(response2, response1, chat_id):
             request = requests.get(url=url,params=params)
             if request.json() == [] or request.status_code == 500:
                 msg = "No review available. Do you want to post a review?"
-                mark_dic[chat_id][0] = -1
+                validation_reply(msg,chat_id)
+                msg = "/review"
+                mark_dic[chat_id][0] = 0
                 return validation_reply(msg, chat_id), mark_dic
             else:
                 for i in request.json():
