@@ -53,6 +53,7 @@ comment = ''
 advice = ''
 school = ''
 year = 1
+stage_dic = {}
 schools = ['SIS','SOE','SOB','SOA','SOSS','SOL']
 # chat_id = "386055474" ## this need to extract from database
 
@@ -122,7 +123,7 @@ def on_chat_message(msg):
         step_2_vaildation(response2, response1, chat_id)
     elif response1 != "" and mark == 0.5:    
         response2 = response
-        get_step_2_vaildation(response2, response1, chat_id)
+        search_step_2_vaildation(response2, response1, chat_id)
     elif response == 'h' or mark == 10:
         markup = ReplyKeyboardRemove()
         bot.sendMessage(chat_id, 'Hide custom keyboard', reply_markup=markup)
@@ -150,7 +151,7 @@ def step_2(response1, chat_id):
     
     return validation_reply(msg, chat_id)                              ## this step is just to check user click on which button and give corresponding respond
 
-def get_step_2_vaildation(response2, response1, chat_id):
+def search_step_2_vaildation(response2, response1, chat_id):
     global mark
     if response1 == "Search by Course ID":
         if response2.isalpha() or response2.isdigit():
@@ -158,18 +159,18 @@ def get_step_2_vaildation(response2, response1, chat_id):
             msg = "Please enter the correct format of Course code"
             return validation_reply(msg, chat_id), mark
         else:
-            return get_step_3(response2, response1, chat_id)
+            return search_step_3(response2, response1, chat_id)
     if response1 == "Search by Course Name":
         cname_without_space =response2.replace(" ", "")
         if cname_without_space.isalpha():
-            return get_step_3(response2, response1, chat_id)              ## cname may not be complete and contain space
+            return search_step_3(response2, response1, chat_id)              ## cname may not be complete and contain space
         else:
             msg = "Please enter the correct format of course name"
             return validation_reply(msg, chat_id)
     if response1 == "Search by Professor Name":
         pname_without_space = response2.replace(" ", "")
         if pname_without_space.isalpha():
-            return get_step_3(response2, response1, chat_id)     ## pname contains space e.g "Tan Hwee Xian"
+            return search_step_3(response2, response1, chat_id)     ## pname contains space e.g "Tan Hwee Xian"
         else:
             msg = "Please enter the correct format of Prof name"
             return validation_reply(msg, chat_id)
@@ -198,8 +199,9 @@ def step_2_vaildation(response2, response1, chat_id):
             return validation_reply(msg, chat_id)
 
 #what are the things to show in getreview...
-def get_step_3(response2, response1, chat_id):
+def search_step_3(response2, response1, chat_id):
     global mark
+    global pname
     url = "http://smt203-project-team1.herokuapp.com/getreview"
     result = []
     dic = {}
@@ -257,7 +259,7 @@ def get_step_3(response2, response1, chat_id):
             mark = 10
             for i in result:
                 final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \n Advices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5])
-            return validation_reply(final, chat_id), mark
+            return validation_reply(dic, chat_id), mark
         elif response1 == "Search by Course Name":
             params = {"cname": response2}
             request = requests.get(url=url,params=params)
@@ -312,29 +314,37 @@ def get_step_3(response2, response1, chat_id):
             params = {"pname": response2}
             url = "http://smt203-project-team1.herokuapp.com/getmodreview"
             request = requests.get(url=url,params=params)
-            #return validation_reply(request.json(), chat_id)
-            for i in request.json():
-                if i["course"] not in l:
-                    l.append(i["course"])
-            l.append("All")
-            mark = 1.5
-            r = request.json()
-            msg = 'Please indicate which course you want to search.'
-            return send_list(l, msg, chat_id), mark, r, pname
+            if request.json() == [] or request.status_code == 500:
+                msg = "Please check your input"
+                mark = 0.5
+                return validation_reply(request.json(), chat_id), mark
+            else:
+                for i in request.json():
+                    if i["course"] not in l:
+                        l.append(i["course"])
+                l.append("All")
+                mark = 1.5
+                r = request.json()
+                msg = 'Please indicate which course you want to search.'
+                return send_list(l, msg, chat_id), mark, r, pname
+        if request.json() == [] or request.status_code == 500:
+            msg = "Please check your input"
+            mark = 0.5
+            return validation_reply(msg, chat_id), mark
     except:
         msg = "Please check your input"
         mark = 0.5
-        return validation_reply(dic, chat_id), mark
+        return validation_reply(msg, chat_id), mark
 
 def get_modreview(r, response3, chat_id):
     url = get_modreview
     result = []
-    dic = {}
+    review = {}
     count = 0
     final = ''
     if response3 == "All":
         for i in r:
-            if i["course"] not in dic:
+            if i["course"] not in review:
                 if i["comment"] != None:
                     comment = i["comment"]
                 else:
@@ -347,19 +357,19 @@ def get_modreview(r, response3, chat_id):
                 score2 = i["score2"]
                 score3 = i["score3"]
                 count = 1
-                dic[i["course"]] = [score1, score2, score3, count, comment, advice]
+                review[i["course"]] = [score1, score2, score3, count, comment, advice]
             else:
-                dic[i["course"]][0] += i["score1"]
-                dic[i["course"]][1] += i["score2"]
-                dic[i["course"]][2] += i["score3"]
-                dic[i["course"]][3] += 1
+                review[i["course"]][0] += i["score1"]
+                review[i["course"]][1] += i["score2"]
+                review[i["course"]][2] += i["score3"]
+                review[i["course"]][3] += 1
                 if i["comment"] != None:
-                    if dic[i["course"]][4] == None:
-                        dic[i["course"]][4].append(i["comment"])
+                    if review[i["course"]][4] == None:
+                        review[i["course"]][4].append(i["comment"])
                 if i["advice"] != None:
-                    if dic[i["course"]][5] == None:
-                        dic[i["course"]][5].append(i["advice"])
-        for k, v in dic.items():
+                    if review[i["course"]][5] == None:
+                        review[i["course"]][5].append(i["advice"])
+        for k, v in review.items():
             cname = k
             s1 = v[0] / v[3]
             s2 = v[1] / v[3]
@@ -375,13 +385,13 @@ def get_modreview(r, response3, chat_id):
             re = [pname, s1, s2, s3, comment, advice, cname]
             result.append(re)
         for i in result:
-            final += "\n👨‍🏫 Prof *{0}* in course *{6}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \n Advices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5],i[6])
+            final += "\n👨‍🏫 Prof *{0}* in course *{6}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nWith comments: `{4}` \nAdvices: `{5}`\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐".format(i[0], i[1], i[2], i[3], i[4],i[5],i[6])
         return validation_reply(final, chat_id), mark
     else:
         cname = response3
         for i in r:
             if i["course"] == cname:
-                if i["course"] not in dic:
+                if i["course"] not in review:
                     if i["comment"] != None:
                         comment = i["comment"]
                     else:
@@ -394,19 +404,19 @@ def get_modreview(r, response3, chat_id):
                     score2 = i["score2"]
                     score3 = i["score3"]
                     count = 1
-                    dic[i["course"]] = [score1, score2, score3, count, comment, advice]
+                    review[i["course"]] = [score1, score2, score3, count, comment, advice]
                 else:
-                    dic[i["course"]][0] += i["score1"]
-                    dic[i["course"]][1] += i["score2"]
-                    dic[i["course"]][2] += i["score3"]
-                    dic[i["course"]][3] += 1
+                    review[i["course"]][0] += i["score1"]
+                    review[i["course"]][1] += i["score2"]
+                    review[i["course"]][2] += i["score3"]
+                    review[i["course"]][3] += 1
                     if i["comment"] != None:
-                        if dic[i["course"]][4] == None:
-                            dic[i["course"]][4].append(i["comment"])
+                        if review[i["course"]][4] == None:
+                            review[i["course"]][4].append(i["comment"])
                     if i["advice"] != None:
-                        if dic[i["course"]][5] == None:
-                            dic[i["course"]][5].append(i["advice"])
-        for k, v in dic.items():
+                        if review[i["course"]][5] == None:
+                            review[i["course"]][5].append(i["advice"])
+        for k, v in review.items():
             cname = k
             s1 = v[0] / v[3]
             s2 = v[1] / v[3]
@@ -436,7 +446,7 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
         if response1 == "Post by Course ID": 
             params = {"cid": response2}
             request = requests.get(url=url,params=params)
-            if request.status_code == 500 or request.json() == []:
+            if request.status_code == 500 or request.json() == {}:
                 msg = "Please enter a valid Course ID"
                 return validation_reply(msg, chat_id)
             else:
@@ -447,7 +457,7 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
             params = {"cname": response2}
             cname = response2
             request = requests.get(url=url,params=params)
-            if request.status_code == 500 or request.json() == []:
+            if request.status_code == 500 or request.json() == {}:
                 msg = "Please enter a valid Course Name."
                 return validation_reply(msg, chat_id)
             else:
@@ -457,7 +467,7 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
             params = {"pname": response2}
             pname = response2
             request = requests.get(url=url,params=params)
-            if request.json() == [] or request.status_code == 500:
+            if request.json() == {} or request.status_code == 500:
                 msg = "Please enter a valid prof name"
                 return validation_reply(msg, chat_id)
             else:
