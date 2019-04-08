@@ -58,8 +58,6 @@ response_list = []
 schools = ['SIS','SOE','SOB','SOA','SOSS','SOL']
 # chat_id = "386055474" ## this need to extract from database
 
-
-
 #continuous listen
 def on_chat_message(msg):
     # chat_id = msg['chat']["id"]
@@ -227,7 +225,15 @@ def search_step_3(response2, response1, chat_id):
     try:
         if response1 == "Search by Course ID":
             params = {"cid": response2}
+            request1 = requests.get(url="http://smt203-project-team1.herokuapp.com/getprofcourse",params=params)
+            if request1.status_code == 500:
+                msg = "Please enter a valid course ID."
+                return validation_reply(msg, chat_id)
             request = requests.get(url=url,params=params)
+            if request.json() == [] or request.status_code == 500:
+                msg = "No review available. Do you want to post a review?"
+                mark_dic[chat_id][0] = -1
+                return validation_reply(msg, chat_id), mark_dic
             for i in request.json():
                 comment = []
                 advice = []
@@ -283,7 +289,15 @@ def search_step_3(response2, response1, chat_id):
             return validation_reply(final, chat_id), mark_dic
         elif response1 == "Search by Course Name":
             params = {"cname": response2}
+            request1 = requests.get(url="http://smt203-project-team1.herokuapp.com/getprofcourse",params=params)
+            if request1.status_code == 500:
+                msg = "Please enter a valid course name."
+                return validation_reply(msg, chat_id)
             request = requests.get(url=url,params=params)
+            if request.json() == [] or request.status_code == 500:
+                msg = "No review available. Do you want to post a review?"
+                mark_dic[chat_id][0] = -1
+                return validation_reply(msg, chat_id), mark_dic
             for i in request.json():
                 comment = []
                 advice = []
@@ -340,11 +354,15 @@ def search_step_3(response2, response1, chat_id):
         elif response1 == "Search by Professor Name":# getmodreview function
             pname = response2
             params = {"pname": response2}
+            request1 = requests.get(url="http://smt203-project-team1.herokuapp.com/getprofcourse",params=params)
+            if request1.status_code == 500:
+                msg = "Please enter a valid Professor Name."
+                return validation_reply(msg, chat_id)
             url = "http://smt203-project-team1.herokuapp.com/getmodreview"
             request = requests.get(url=url,params=params)
             if request.json() == [] or request.status_code == 500:
-                msg = "Please check your input"
-                mark_dic[chat_id][0] = 0.5
+                msg = "No review available. Do you want to post a review?"
+                mark_dic[chat_id][0] = -1
                 return validation_reply(msg, chat_id), mark_dic
             else:
                 for i in request.json():
@@ -357,10 +375,6 @@ def search_step_3(response2, response1, chat_id):
                 mark_dic[chat_id][1]["pname"] = pname
                 msg = 'Please indicate which course you want to search.'
                 return send_list(l, msg, chat_id), mark_dic
-        if request.json() == [] or request.status_code == 500:
-            msg = "Please check your input"
-            mark_dic[chat_id][0] = 0.5
-            return validation_reply(msg, chat_id), mark_dic
     except:
         msg = "Please check your input"
         mark_dic[chat_id][0] = 0.5
