@@ -58,8 +58,7 @@ response_list = []
 schools = ['SIS','SOE','SOB','SOA','SOSS','SOL']
 # chat_id = "386055474" ## this need to extract from database
 
-def stage(chat_id, response):
-    mark_dic[chat_id] = [stage, response]
+
 
 #continuous listen
 def on_chat_message(msg):
@@ -71,19 +70,16 @@ def on_chat_message(msg):
     global response1                                                     
     global response2
     global response3
-    global mark
+    global mark_dic
     global stage_dic    #########store user chat_id and save the response and stage
     response = msg['text']
 
-
+    if chat_id not in mark_dic:
+        mark = -1
+        respond = {}
+        mark_dic[chat_id] = [mark, respond]
 
     if response == '/start':
-
-        if chat_id not in mark_dic:
-            mark = -1
-            respond = []
-            mark_dic[chat_id] = [mark, respond]
-
         msg = "👋 Please type / to choose /review or /search"
         validation_reply(msg, chat_id)
     elif response == '/review':#review profs
@@ -99,42 +95,53 @@ def on_chat_message(msg):
                      [KeyboardButton(text = "Search by Professor Name")],
                  ])
         bot.sendMessage(chat_id, 'Please indicate which methods would you like to use', reply_markup=markup)
-        mark = 0.5                    
-    elif response[:4] == "Post" and mark==0:#first selection of Post by what                                        
+        mark_dic[chat_id][0] = 0.5               
+    elif response[:4] == "Post" and mark_dic[chat_id][0] == 0:#first selection of Post by what                                        
         response1 = response
+        mark_dic[chat_id][1]["response1"] = response1
         step_2(response1, chat_id)
-    elif response[:6] == "Search" and mark==0.5:#first selection of search by what                                        
+    elif response[:6] == "Search" and mark_dic[chat_id][0] == 0.5:#first selection of search by what                                        
         response1 = response
+        mark_dic[chat_id][1]["response1"] = response1
         search_step_2(response1, chat_id) 
-    elif mark == 1:#select prof or course
+    elif mark_dic[chat_id][0] == 1:#select prof or course
         response3 = response 
+        mark_dic[chat_id][1]["response3"] = response3
         step_4(response3, chat_id)
-    elif mark == 1.5:#get mod review by courses
+    elif mark_dic[chat_id][0] == 1.5:#get mod review by courses
         response3 = response
-        get_modreview(r, response3, chat_id)     
-    elif mark == 2:#give score base on the selection
-        response4 = response
-        scores = response4
+        mark_dic[chat_id][1]["response3"] = response3
+        get_modreview(mark_dic[chat_id][1]["r"], response3, chat_id)     
+    elif mark_dic[chat_id][0] == 2:#give score base on the selection
+        # response4 = response
+        scores = response
+        mark_dic[chat_id][1]["scores"] = scores
         scoreValidation(scores,chat_id)
-    elif mark == 3:#give comment and finish score review
+    elif mark_dic[chat_id][0] == 3:#give comment and finish score review
         response5 = response
+        mark_dic[chat_id][1]["response5"] = response5
         step_6_1(response5, chat_id)
-    elif mark == 4:#ask and give advice else skip
+    elif mark_dic[chat_id][0] == 4:#ask and give advice else skip
         response6 = response
+        mark_dic[chat_id][1]["response6"] = response6
         step_6_2(response6, chat_id)
-    elif mark == 5:
+    elif mark_dic[chat_id][0] == 5:
         response7 = response
+        mark_dic[chat_id][1]["response7"] = response7
         step_6_3(response7, chat_id)
-    elif mark == 6:
+    elif mark_dic[chat_id][0] == 6:
         response8 = response
+        mark_dic[chat_id][1]["response8"] = response8
         step_6_4(response8, chat_id)
-    elif response1 != "" and mark == 0:    
+    elif mark_dic[chat_id][1]["response1"] != "" and mark_dic[chat_id][0] == 0:    
         response2 = response
-        step_2_vaildation(response2, response1, chat_id)
-    elif response1 != "" and mark == 0.5:    
+        mark_dic[chat_id][1]["response2"] = response2
+        step_2_vaildation(response2, mark_dic[chat_id][1]["response1"], chat_id)
+    elif mark_dic[chat_id][1]["response1"] != "" and mark_dic[chat_id][0] == 0.5:    
         response2 = response
-        search_step_2_vaildation(response2, response1, chat_id)
-    elif response == 'h' or mark == 10:
+        mark_dic[chat_id][1]["response2"] = response2
+        search_step_2_vaildation(response2, mark_dic[chat_id][1]["response1"], chat_id)
+    elif response == 'h' or mark_dic[chat_id][0] == 10:
         markup = ReplyKeyboardRemove()
         bot.sendMessage(chat_id, 'Hide custom keyboard', reply_markup=markup)
 
@@ -162,12 +169,12 @@ def step_2(response1, chat_id):
     return validation_reply(msg, chat_id)                              ## this step is just to check user click on which button and give corresponding respond
 
 def search_step_2_vaildation(response2, response1, chat_id):
-    global mark
+    global mark_dic
     if response1 == "Search by Course ID":
         if response2.isalpha() or response2.isdigit():
-            mark = 0.5
+            mark_dic[chat_id][0] = 0.5
             msg = "Please enter the correct format of Course code"
-            return validation_reply(msg, chat_id), mark
+            return validation_reply(msg, chat_id), mark_dic
         else:
             return search_step_3(response2, response1, chat_id)
     if response1 == "Search by Course Name":
@@ -210,7 +217,7 @@ def step_2_vaildation(response2, response1, chat_id):
 
 #what are the things to show in getreview...
 def search_step_3(response2, response1, chat_id):
-    global mark
+    global mark_dic
     global pname
     url = "http://smt203-project-team1.herokuapp.com/getreview"
     result = []
@@ -245,9 +252,9 @@ def search_step_3(response2, response1, chat_id):
                         review[i["professor"]][5].append(i["advice"])
             for k, v in review.items():
                 pname = k
-                s1 = v[0] / v[3]
-                s2 = v[1] / v[3]
-                s3 = v[2] / v[3]
+                s1 = round(v[0] / v[3],2)
+                s2 = round(v[1] / v[3],2)
+                s3 = round(v[2] / v[3],2)
                 if v[4] != []:
                     comment = v[4]
                 else:
@@ -258,7 +265,7 @@ def search_step_3(response2, response1, chat_id):
                     advice = None
                 re = [pname, s1, s2, s3, comment, advice]
                 result.append(re)
-            mark = 10
+            mark_dic[chat_id][0] = 10
             for i in result:
                 final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness.\nComments:".format(i[0], i[1], i[2], i[3])
                 if i[4] == None:
@@ -273,7 +280,7 @@ def search_step_3(response2, response1, chat_id):
                     for b in i[5]:
                         final += "\n`{0}`".format(b)
                 final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
-            return validation_reply(final, chat_id), mark
+            return validation_reply(final, chat_id), mark_dic
         elif response1 == "Search by Course Name":
             params = {"cname": response2}
             request = requests.get(url=url,params=params)
@@ -301,9 +308,9 @@ def search_step_3(response2, response1, chat_id):
                         review[i["professor"]][5].append(i["advice"])
             for k, v in review.items():
                 pname = k
-                s1 = v[0] / v[3]
-                s2 = v[1] / v[3]
-                s3 = v[2] / v[3]
+                s1 = round(v[0] / v[3],2)
+                s2 = round(v[1] / v[3],2)
+                s3 = round(v[2] / v[3],2)
                 if v[4] != []:
                     comment = v[4]
                 else:
@@ -314,9 +321,9 @@ def search_step_3(response2, response1, chat_id):
                     advice = None
                 re = [pname, s1, s2, s3, comment, advice]
                 result.append(re)
-            mark = 10
+            mark_dic[chat_id][0] = 10
             for i in result:
-                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness.".format(i[0], i[1], i[2], i[3])
+                final += "\n👨‍🏫 Prof *{0}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness.\nComment:".format(i[0], i[1], i[2], i[3])
                 if i[4] == None:
                     final += "\n`None`"  
                 else: 
@@ -329,36 +336,38 @@ def search_step_3(response2, response1, chat_id):
                     for b in i[5]:
                         final += "\n`{0}`".format(b)
                 final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
-            return validation_reply(final, chat_id), mark
+            return validation_reply(final, chat_id), mark_dic
         elif response1 == "Search by Professor Name":# getmodreview function
-            global r
             pname = response2
             params = {"pname": response2}
             url = "http://smt203-project-team1.herokuapp.com/getmodreview"
             request = requests.get(url=url,params=params)
             if request.json() == [] or request.status_code == 500:
                 msg = "Please check your input"
-                mark = 0.5
-                return validation_reply(msg, chat_id), mark
+                mark_dic[chat_id][0] = 0.5
+                return validation_reply(msg, chat_id), mark_dic
             else:
                 for i in request.json():
                     if i["course"] not in l:
                         l.append(i["course"])
                 l.append("All")
-                mark = 1.5
+                mark_dic[chat_id][0] = 1.5
                 r = request.json()
+                mark_dic[chat_id][1]["r"] = r
+                mark_dic[chat_id][1]["pname"] = pname
                 msg = 'Please indicate which course you want to search.'
-                return send_list(l, msg, chat_id), mark, r, pname
+                return send_list(l, msg, chat_id), mark_dic
         if request.json() == [] or request.status_code == 500:
             msg = "Please check your input"
-            mark = 0.5
-            return validation_reply(msg, chat_id), mark
+            mark_dic[chat_id][0] = 0.5
+            return validation_reply(msg, chat_id), mark_dic
     except:
         msg = "Please check your input"
-        mark = 0.5
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 0.5
+        return validation_reply(msg, chat_id), mark_dic
 
 def get_modreview(r, response3, chat_id):
+    global mark_dic
     url = get_modreview
     result = []
     review = {}
@@ -389,9 +398,9 @@ def get_modreview(r, response3, chat_id):
                     review[i["course"]][5].append(i["advice"])
         for k, v in review.items():
             cname = k
-            s1 = v[0] / v[3]
-            s2 = v[1] / v[3]
-            s3 = v[2] / v[3]
+            s1 = round(v[0] / v[3],2)
+            s2 = round(v[1] / v[3],2)
+            s3 = round(v[2] / v[3],2)
             if v[4] != []:
                 comment = v[4]
             else:
@@ -400,7 +409,7 @@ def get_modreview(r, response3, chat_id):
                 advice = v[5]
             else:
                 advice = None
-            re = [pname, s1, s2, s3, comment, advice, cname]
+            re = [mark_dic[chat_id][1]["pname"], s1, s2, s3, comment, advice, cname]
             result.append(re)
         for i in result:
             final += "\n👨‍🏫 Prof *{0}* in course *{4}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nComments:".format(i[0], i[1], i[2], i[3],i[6])
@@ -416,7 +425,7 @@ def get_modreview(r, response3, chat_id):
                 for b in i[5]:
                     final += "\n`{0}`".format(b)
             final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
-        return validation_reply(final, chat_id), mark
+        return validation_reply(final, chat_id), mark_dic
     else:
         cname = response3
         for i in r:
@@ -444,9 +453,9 @@ def get_modreview(r, response3, chat_id):
                         review[i["course"]][5].append(i["advice"])
         for k, v in review.items():
             cname = k
-            s1 = v[0] / v[3]
-            s2 = v[1] / v[3]
-            s3 = v[2] / v[3]
+            s1 = round(v[0] / v[3],2)
+            s2 = round(v[1] / v[3],2)
+            s3 = round(v[2] / v[3],2)
             if v[4] != []:
                 comment = v[4]
             else:
@@ -455,7 +464,7 @@ def get_modreview(r, response3, chat_id):
                 advice = v[5]
             else:
                 advice = None
-            re = [pname, s1, s2, s3, comment, advice, cname]
+            re = [mark_dic[chat_id][1]["pname"], s1, s2, s3, comment, advice, cname]
             result.append(re)
         for i in result:
             final += "\n👨‍🏫 Prof *{0}* in course *{4}* has *{1}* in clarity of teaching, *{2}* in workload and *{3}* in grading fairness. \nComments:".format(i[0], i[1], i[2], i[3],i[6])
@@ -471,13 +480,12 @@ def get_modreview(r, response3, chat_id):
                 for b in i[5]:
                     final += "\n`{0}`".format(b)
             final += "\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐"
-        return validation_reply(final, chat_id), mark
+        return validation_reply(final, chat_id), mark_dic
 ##############################################################################################
 #call api append result to l
 def step_3(response2, response1, chat_id):  ## vaildate the input and start calling API          
-    global mark
+    global mark_dic
     global cname
-    global pname
     global response_list
     l = []
     url = getprofcourse
@@ -512,14 +520,16 @@ def step_3(response2, response1, chat_id):  ## vaildate the input and start call
             else:
                 for i in request.json():
                     l.append(i["course"])
-        mark = 1
         response_list = l
+        mark_dic[chat_id][0] = 1
+        mark_dic[chat_id][1]["cname"] = cname
+        mark_dic[chat_id][1]["response_list"] = response_list
         msg = 'Please indicate which professor/course you want to review.🌘'
-        return send_list(l, msg, chat_id), mark, cname, pname, response_list
+        return send_list(l, msg, chat_id), mark_dic
     except:
         msg = "Please check your input"
-        mark = 0
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 0
+        return validation_reply(msg, chat_id), mark_dic
 #############################################################################################################
 #prof buttons or couse name
 def send_list(l, msg, chat_id):
@@ -535,19 +545,18 @@ def send_list(l, msg, chat_id):
 # response3 = "xxx"      ## base on which button user select
 #score
 def step_4(response3, chat_id):
-    global mark
-    global cname
-    global pname
+    global mark_dic
+
     if response3 not in response_list:
-        mark = 1
+        mark_dic[chat_id][0] = 1
         msg = "Please check your input."
-        return validation_reply(msg, chat_id), mark
-    if response1 == "Post by Course ID":
-        pname = response3
-    elif response1 == "Post by Course Name":
-        pname = response3
-    elif response1 == "Post by Professor Name":
-        cname = response3
+        return validation_reply(msg, chat_id), mark_dic
+    if mark_dic[chat_id][1]["response1"] == "Post by Course ID":
+        mark_dic[chat_id][1]["pname"] = response3
+    elif mark_dic[chat_id][1]["response1"] == "Post by Course Name":
+        mark_dic[chat_id][1]["pname"] = response3
+    elif mark_dic[chat_id][1]["response1"] == "Post by Professor Name":
+        mark_dic[chat_id][1]["cname"] = response3
     review_scores = """
     Please provide scores between 0 to 5 based on
     - *Clarity of Teaching*
@@ -556,115 +565,123 @@ def step_4(response3, chat_id):
     For example:
     Clarity of Teching has 3.5. Workload has 4. And Grading has 5.
     Just enter: *3.5,4,5* 🌗"""
-    mark = 2
-    return bot.sendMessage(chat_id, review_scores, parse_mode=telegram.ParseMode.MARKDOWN), mark, pname, cname
+    mark_dic[chat_id][0] = 2
+    return bot.sendMessage(chat_id, review_scores, parse_mode=telegram.ParseMode.MARKDOWN), mark_dic
 
 #convert to button
 def step_5(chat_id): 
-    global mark
-    mark = 3
+    global mark_dic
+    mark_dic[chat_id][0] = 3
     #return bot.sendMessage(chat_id, review_qns), mark
     msg = "Following questions are optional. Please simply provide the information or press 'Skip' to skip the question."
     l = ["Skip further comment"]
     msg = "Please enter further comment for the prof or course if any.🌖"
-    return send_list(l, msg, chat_id), mark
+    return send_list(l, msg, chat_id), mark_dic
 
 def step_6_1(response5, chat_id):
-    global mark
+    global mark_dic
     global comment
     l = ["Skip for advice"]
     msg = "Please enter your advice for prof to improve if any.🌕"
     try:
         if response5 == "Skip further comment":
             comment = None
-            mark = 4
-            return send_list(l, msg, chat_id),mark, comment
+            mark_dic[chat_id][0] = 4
+            mark_dic[chat_id][1]["comment"] = comment
+            return send_list(l, msg, chat_id),mark_dic
         else:
             comment = response5
-            mark = 4
-            return send_list(l, msg, chat_id), mark, comment
+            mark_dic[chat_id][0] = 4
+            mark_dic[chat_id][1]["comment"] = comment
+            return send_list(l, msg, chat_id), mark_dic
     except:
         msg = response5
-        mark = 3
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 3
+        return validation_reply(msg, chat_id), mark_dic
 
 def step_6_2(response6, chat_id):
-    global mark
+    global mark_dic
     global advice
     l = ["Skip entering school"]
     msg = "Please enter your school. E.g. *SIS*🌝"
     try:
         if response6 == "Skip for advice" or response6 == "Skip further comment":
             advice = None
-            mark = 5
-            return send_list(l, msg, chat_id),mark, advice
+            mark_dic[chat_id][0] = 5
+            mark_dic[chat_id][1]["advice"] = advice
+            return send_list(l, msg, chat_id),mark_dic
         else:
             advice = response6
-            mark = 5
-            return send_list(l, msg, chat_id),mark, advice
+            mark_dic[chat_id][0] = 5
+            mark_dic[chat_id][1]["advice"] = advice
+            return send_list(l, msg, chat_id),mark_dic
     except:
         msg = response6
-        mark = 4
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 4
+        return validation_reply(msg, chat_id), mark_dic
 
 def step_6_3(response7, chat_id):
-    global mark
+    global mark_dic
     global school
     l = ["Skip entering current year."]
     msg = "Please enter your current year in integer. E.g. *3* ☀️"
     try:
         if response7 == "Skip entering school":
             school = None
-            mark = 6
-            return send_list(l, msg, chat_id),mark, school
+            mark_dic[chat_id][0] = 6
+            mark_dic[chat_id][1]["school"] = school
+            return send_list(l, msg, chat_id),mark_dic
         else:
             school = response7
             if school in schools:
-                mark = 6
-                return send_list(l, msg, chat_id),mark, school
+                mark_dic[chat_id][0] = 6
+                mark_dic[chat_id][1]["school"] = school
+                return send_list(l, msg, chat_id),mark_dic
             else:
-                mark = 5
+                mark_dic[chat_id][0] = 5
                 msg = "Please enter your school. E.g. *SIS,SOE,SOB,SOA,SOSS*"
-                return validation_reply(msg, chat_id), mark
+                return validation_reply(msg, chat_id), mark_dic
     except:
         msg = response7
-        mark = 5
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 5
+        return validation_reply(msg, chat_id), mark_dic
 
 def step_6_4(response8, chat_id):
-    global mark
+    global mark_dic
     global year
     msg = "That's all for the review. Thank you.🦁🦁🦁"
     try:
         if response8 == "Skip entering current year.":
             year = None
-            mark = 10
-            postReview(chat_id, pname, cname, score1, score2, score3, comment, advice, school, year), mark
-            return validation_reply(msg, chat_id), mark, year
+            mark_dic[chat_id][0] = 10
+            mark_dic[chat_id][1]["year"] = year
+            postReview(chat_id, mark_dic)
+            return validation_reply(msg, chat_id), mark_dic
         else:
             try:
                 year = int(response8)
             except:
                 msg = "Please enter a integer"
-                mark = 6
-                return validation_reply(msg, chat_id), mark
+                mark_dic[chat_id][0] = 6
+                return validation_reply(msg, chat_id), mark_dic
             if(year < 1 or year > 4):
                 msg = "Please enter a integer between 1 to 4"
-                mark = 6
-                return validation_reply(msg, chat_id), mark
+                mark_dic[chat_id][0] = 6
+                return validation_reply(msg, chat_id), mark_dic
             else:
-                mark = 10
-                postReview(chat_id, pname, cname, score1, score2, score3, comment, advice, school, year), mark
+                mark_dic[chat_id][0] = 10
+                mark_dic[chat_id][1]["year"] = year
+                postReview(chat_id, mark_dic)
                 #check_chat_id(chat_id)
-                return validation_reply(msg, chat_id), mark, year
+                return validation_reply(msg, chat_id), mark_dic
     except:
         msg = "Something went wrong..."
-        mark = 6
-        return validation_reply(msg, chat_id), mark
+        mark_dic[chat_id][0] = 6
+        return validation_reply(msg, chat_id), mark_dic
 
 #check score input within 0 to 5
 def scoreValidation(scores,chat_id):
-    global mark
+    global mark_dic
     global score1
     global score2
     global score3
@@ -675,29 +692,41 @@ def scoreValidation(scores,chat_id):
         score3 = float(scores[2])
     except:
         msg = "Please provide three scores."
-        return validation_reply(msg, chat_id), mark
+        return validation_reply(msg, chat_id), mark_dic
     if(score1<0 or score2<0 or score3<0):
         msg = "Score could not be less than 0. Please enter your score again."
-        mark = 2
+        mark_dic[chat_id][0] = 2
         return validation_reply(msg, chat_id), mark
     elif(score1>5 or score2>5 or score3>5):
         msg = "Score could not be larger than 5. Please enter your score again."
-        mark = 2
+        mark_dic[chat_id][0] = 2
         return validation_reply(msg, chat_id), mark
     else:
-        mark = 3
+        mark_dic[chat_id][0] = 3
         msg = "Thank you for your score review"
         validation_reply(msg, chat_id)
-        return step_5(chat_id), score1, score2, score3
+        mark_dic[chat_id][1]["score1"] = score1
+        mark_dic[chat_id][1]["score2"] = score2
+        mark_dic[chat_id][1]["score3"] = score3
+        return step_5(chat_id), mark_dic
 
 #post review function
 #, pname, cname, score1, score2, score3, comment, advice, school, year
-def postReview(chat_id, pname, cname, score1, score2, score3, comment, advice, school, year):
+def postReview(chat_id, mark_dic):
     hashid = hashids.encode(chat_id)
     #nhashid = hashids.decode(hashid) #decode
+    pname = mark_dic[chat_id][1]["pname"]
+    cname = mark_dic[chat_id][1]["cname"]
+    score1 = mark_dic[chat_id][1]["score1"]
+    score2 = mark_dic[chat_id][1]["score2"]
+    score3 = mark_dic[chat_id][1]["score3"]
+    comment = mark_dic[chat_id][1]["comment"]
+    advice = mark_dic[chat_id][1]["advice"]
+    school = mark_dic[chat_id][1]["school"]
+    year = mark_dic[chat_id][1]["year"]
     json = {"reviewer": hashid, "pname":pname, "cname":cname, "score1":score1, "score2":score2, "score3":score3, "comment":comment, "advice":advice, "school":school, "year":year}
     postReview = "http://smt203-project-team1.herokuapp.com/postreview"
-    mark = 10
+    mark_dic[chat_id][0] = 10
     if comment == None:
         comment = "No comment."
     if advice == None:
@@ -710,10 +739,10 @@ You are in year *{8}* from *{7}* .\n⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐""".f
     validation_reply(msg, chat_id)
     if request.status_code == 200:
         msg = "Your review has been posted sucessfully."
-        return validation_reply(msg, chat_id), mark#return status
+        return validation_reply(msg, chat_id), mark_dic #return status
     else:
         msg = "Posting failed. You have posted the review for the prof and course."
-        return validation_reply(msg, chat_id), mark#return status
+        return validation_reply(msg, chat_id), mark_dic #return status
 
 ###################################################################################################################################
 #bot = telepot.Bot("830250985:AAFeA-dy4mB1kXZbK_kBc6pBeT5xD7sqPu0")
@@ -723,4 +752,4 @@ print('Listening ...')
 
 # Keep the program running.
 while 1:
-    time.sleep(10)
+    time.sleep(5)
